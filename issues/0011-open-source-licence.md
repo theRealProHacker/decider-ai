@@ -3,7 +3,7 @@ id: 11
 title: Open-source licence
 labels: [wayfinder:grilling]
 status: open
-assignee:
+assignee: rharvey
 parent: 1
 blocked_by: []
 ---
