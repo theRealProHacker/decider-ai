@@ -5,7 +5,7 @@ labels: [wayfinder:grilling]
 status: open
 assignee:
 parent: 1
-blocked_by: [16]
+blocked_by: []
 ---
 
 ## Question

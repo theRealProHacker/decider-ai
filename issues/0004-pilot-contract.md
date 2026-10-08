@@ -2,7 +2,7 @@
 id: 4
 title: Pilot ↔ decider-ai contract
 labels: [wayfinder:grilling]
-status: open
+status: closed
 assignee:
 parent: 1
 blocked_by: [16]
@@ -15,3 +15,7 @@ What exactly crosses the boundary between Pilot and decider-ai? Pin the JSONL re
 ## Notes (2026-10-08)
 
 First grilling question surfaced a wedge-level gap; see [Rethink the Pilot wedge](0016-rethink-the-pilot-wedge.md). Unclaimed and blocked until that resolves.
+
+## Resolution
+
+Out of scope: Pilot left the launch ([Rethink the Pilot wedge](0016-rethink-the-pilot-wedge.md)). No contract to pin.
