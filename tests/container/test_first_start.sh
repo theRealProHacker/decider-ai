@@ -6,6 +6,7 @@
 set -uo pipefail
 
 IMAGE=${IMAGE:-decider-ai:dev}
+LIMITS=${DOCKER_LIMITS:---cpus 3 --memory 10g}   # resource limits for service containers
 P=dtest$$                       # prefix for volumes and containers
 REPO=convaiinnovations/laya-multilingual
 REV=1720e3e3357cfe1e281542e223f8273b0890ca34
@@ -67,7 +68,7 @@ if [ -n "${SEED_HF_CACHE:-}" ]; then
 else
   new_vol "$SEED_VOL"
 fi
-docker run -d --name ${P}a -p 127.0.0.1:8080:8080 -v "$SEED_VOL:/data" "$IMAGE" >/dev/null
+docker run -d $LIMITS --name ${P}a -p 127.0.0.1:8080:8080 -v "$SEED_VOL:/data" "$IMAGE" >/dev/null
 check "first start serves (download if empty)" wait_live ${P}a 900
 check "generated key printed exactly once" [ "$(generated ${P}a)" = 1 ]
 KEY=$(docker logs ${P}a 2>&1 | sed -n 's/.*Generated API key.*: //p' | tr -d '\r')
@@ -93,7 +94,7 @@ docker rm -f ${P}a >/dev/null
 
 # --- 2. second start: no key printed, same key, nothing downloaded ---------------------------
 MT1=$(in_vol "$SEED_VOL" "stat -L -c %Y $SNAP/model.safetensors")
-docker run -d --name ${P}b -p 127.0.0.1:8080:8080 -v "$SEED_VOL:/data" "$IMAGE" >/dev/null
+docker run -d $LIMITS --name ${P}b -p 127.0.0.1:8080:8080 -v "$SEED_VOL:/data" "$IMAGE" >/dev/null
 check "second start serves" wait_live ${P}b 120
 check "second start prints no key" [ "$(generated ${P}b)" = 0 ]
 check "second start accepts the same key" \
@@ -104,7 +105,7 @@ docker rm -f ${P}b >/dev/null
 
 # --- 3. DECIDER_API_KEY set ------------------------------------------------------------------
 new_vol ${P}k seed
-docker run -d --name ${P}k -p 127.0.0.1:8080:8080 -e DECIDER_API_KEY=my-own-key -v ${P}k:/data "$IMAGE" >/dev/null
+docker run -d $LIMITS --name ${P}k -p 127.0.0.1:8080:8080 -e DECIDER_API_KEY=my-own-key -v ${P}k:/data "$IMAGE" >/dev/null
 check "env key: serves" wait_live ${P}k 120
 check "env key: works" [ "$(code -H 'Authorization: Bearer my-own-key' 127.0.0.1:8080/health/ready)" = 200 ]
 check "env key: no key generated" [ "$(generated ${P}k)" = 0 ]
@@ -114,13 +115,13 @@ docker rm -f ${P}k >/dev/null
 # --- 4. corrupted checkpoint -----------------------------------------------------------------
 new_vol ${P}c seed
 in_vol ${P}c "printf garbage | dd of=\$(readlink -f $SNAP/model.safetensors) bs=1 seek=1000 conv=notrunc 2>/dev/null"
-out=$(docker run --rm -v ${P}c:/data "$IMAGE" 2>&1); rc=$?
+out=$(docker run --rm $LIMITS -v ${P}c:/data "$IMAGE" 2>&1); rc=$?
 check "corrupt checkpoint: exits non-zero ($rc)" [ $rc -ne 0 ]
 check "corrupt checkpoint: names checksum mismatch" grep -q "checksum mismatch" <<<"$out"
 
 # --- 5. offline -------------------------------------------------------------------------------
 new_vol ${P}o
-out=$(docker run --rm --network none -v ${P}o:/data "$IMAGE" 2>&1); rc=$?
+out=$(docker run --rm $LIMITS --network none -v ${P}o:/data "$IMAGE" 2>&1); rc=$?
 check "offline empty: exits non-zero ($rc)" [ $rc -ne 0 ]
 check "offline empty: names checkpoint and pre-download command" \
   bash -c "grep -q '$REPO' <<<\"\$0\" && grep -q 'hf download $REPO --revision $REV' <<<\"\$0\"" "$out"
@@ -130,14 +131,14 @@ new_vol ${P}p seed
 docker run --rm -v ${P}p:/data --entrypoint hf "$IMAGE" \
   download $REPO --revision $REV --cache-dir /data/hf-cache >/dev/null 2>&1
 check "README pre-download command succeeds" [ $? -eq 0 ]
-docker run -d --name ${P}p --network none -v ${P}p:/data "$IMAGE" >/dev/null
+docker run -d $LIMITS --name ${P}p --network none -v ${P}p:/data "$IMAGE" >/dev/null
 check "offline with pre-populated volume: serves" wait_live ${P}p 120
 docker rm -f ${P}p >/dev/null
 
 # --- 6. tasks.yaml error ---------------------------------------------------------------------
 docker volume create ${P}t >/dev/null
 printf 'tasks:\n  - name: x\n    labels: {a: A, b: B}\n    max_input_tokens: 10\n' | in_vol ${P}t 'cat > /data/tasks.yaml'
-out=$(docker run --rm -v ${P}t:/data "$IMAGE" 2>&1); rc=$?
+out=$(docker run --rm $LIMITS -v ${P}t:/data "$IMAGE" 2>&1); rc=$?
 check "bad tasks.yaml: exits non-zero ($rc)" [ $rc -ne 0 ]
 check "bad tasks.yaml: shows the ConfigError" grep -q "/data/tasks.yaml: task 'x': missing 'question'" <<<"$out"
 
