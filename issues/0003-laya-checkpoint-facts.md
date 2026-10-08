@@ -3,7 +3,7 @@ id: 3
 title: Laya checkpoint facts
 labels: [wayfinder:research]
 status: open
-assignee:
+assignee: rharvey
 parent: 1
 blocked_by: []
 ---

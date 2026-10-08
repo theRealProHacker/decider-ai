@@ -3,7 +3,7 @@ id: 2
 title: Re-verify reviewer fixes R3-1..R3-5
 labels: [wayfinder:task]
 status: open
-assignee:
+assignee: rharvey
 parent: 1
 blocked_by: []
 ---
