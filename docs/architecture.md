@@ -58,7 +58,7 @@ class Decider:
 | `confirm` | one `Outcome(index, kind: added \| updated \| rejected, reason)` per item, in order | per item, never raised: unknown task, label not in task, missing `external_id` |
 | `forget` | `Forgotten(examples_removed, split_members_removed, versions_trained_on)` | `NotFound` |
 | `retrain` | `JobId` | `Busy(job_id)`, `TooFewExamples(have, need=50)` |
-| `job` | `Job(state, progress, verdict, metrics)` | `NotFound` |
+| `job` | `Job(state, progress, epoch, epochs, verdict, metrics)`; `epoch`/`epochs` are `null` until the backend reports them (`FakeBackend` never does) | `NotFound` |
 | `models` | `[ModelVersion(version, verdict, metrics, active)]` | `UnknownTask` |
 | `activate` | `Activation(warning: str \| None)` | `NotFound`, `ActivationFailed` (smoke prediction failed; active model unchanged) |
 | `status` | per task: serving `base` / `trained` / `not_trained`, input limit, active version, confirmed count, split `Frozen` or `Pending(blocking_labels)` | |
@@ -110,7 +110,9 @@ In-process, no I/O. Two callers, `Decider` and `decider-eval`, so the rules that
 ```python
 class Backend(Protocol):
     def predict(self, model: ModelRef, task: TaskSpec, texts: list[str]) -> list[dict[str, float]]: ...
-    def train(self, base: ModelRef, task: TaskSpec, examples: list[Example], seed: int, out_dir: Path, progress: Callable[[float], None]) -> ModelRef: ...
+    def train(self, base: ModelRef, task: TaskSpec, examples: list[Example], seed: int, out_dir: Path, progress: Progress) -> ModelRef: ...
+
+# Progress: (fraction: float, *, epoch: int | None = None, epochs: int | None = None) -> None
     def max_input(self, task: TaskSpec) -> int: ...
 ```
 

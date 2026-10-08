@@ -161,6 +161,8 @@ class Job:
     task: str
     state: Literal["running", "succeeded", "failed"]
     progress: float
+    epoch: int | None  # epochs done, when the backend reports epochs
+    epochs: int | None  # total epochs, when the backend reports epochs
     verdict: str | None  # recommended | not_recommended | unverified, once succeeded
     metrics: dict[str, Any]
     version: str | None
@@ -475,9 +477,15 @@ class Decider:
         try:
             seed = random.randrange(2**31)  # product retrains use a random, recorded seed
 
-            def progress(p: float) -> None:
+            def progress(
+                p: float, *, epoch: int | None = None, epochs: int | None = None
+            ) -> None:
                 with self._lock:
-                    db.execute("UPDATE jobs SET progress=? WHERE id=?", (min(p, 0.99), job_id))
+                    db.execute(
+                        "UPDATE jobs SET progress=?, epoch=COALESCE(?, epoch), "
+                        "epochs=COALESCE(?, epochs) WHERE id=?",
+                        (min(p, 0.99), epoch, epochs, job_id),
+                    )
 
             trained = self.backend.train(BASE, spec, train, seed, out_dir, progress)
             candidate = ModelRef(version, trained.path or out_dir)
@@ -573,16 +581,16 @@ class Decider:
     def job(self, job_id: JobId) -> Job:
         with self._lock:
             row = self.store.db.execute(
-                """SELECT j.id, j.task, j.state, j.progress, v.verdict, v.metrics, j.version,
-                          j.error
+                """SELECT j.id, j.task, j.state, j.progress, j.epoch, j.epochs, v.verdict, v.metrics,
+                          j.version, j.error
                    FROM jobs j LEFT JOIN model_versions v ON v.version = j.version
                    WHERE j.id=?""",
                 (job_id,),
             ).fetchone()
         if row is None:
             raise NotFound(f"job '{job_id}'")
-        return Job(row[0], row[1], row[2], row[3], row[4], json.loads(row[5] or "{}"),
-                   row[6], row[7])
+        return Job(row[0], row[1], row[2], row[3], row[4], row[5], row[6],
+                   json.loads(row[7] or "{}"), row[8], row[9])
 
     def models(self, task: str) -> list[ModelVersion]:
         self._task(task)

@@ -84,6 +84,8 @@ CREATE TABLE IF NOT EXISTS jobs (
     task          TEXT NOT NULL,
     state         TEXT NOT NULL,            -- running | succeeded | failed
     progress      REAL NOT NULL DEFAULT 0,
+    epoch         INTEGER,                  -- epochs done; NULL when the backend does not say
+    epochs        INTEGER,                  -- total epochs; NULL when the backend does not say
     refresh_split INTEGER NOT NULL DEFAULT 0,
     version       TEXT,
     error         TEXT,
@@ -100,6 +102,11 @@ class Store:
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA synchronous=NORMAL")
         self.db.executescript(SCHEMA)
+        # Databases created before jobs.epoch/epochs existed.
+        cols = {r[1] for r in self.db.execute("PRAGMA table_info(jobs)")}
+        for col in ("epoch", "epochs"):
+            if col not in cols:
+                self.db.execute(f"ALTER TABLE jobs ADD COLUMN {col} INTEGER")
 
     def close(self) -> None:
         self.db.close()

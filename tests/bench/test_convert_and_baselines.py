@@ -4,8 +4,10 @@ from pathlib import Path
 import pytest
 import yaml
 
-import baselines
-import convert
+pytest.importorskip("sklearn")  # bench dependency group
+
+import baselines  # noqa: E402
+import convert  # noqa: E402
 
 TASKS = Path(__file__).resolve().parents[2] / "bench" / "tasks"
 

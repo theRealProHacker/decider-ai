@@ -12,7 +12,7 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from typing import Any, Callable, Sequence
+from typing import Any, Sequence
 
 import torch
 from huggingface_hub import snapshot_download
@@ -20,7 +20,7 @@ from laya import Agent
 from laya import train as laya_train
 from laya.common import build_head, encode_text, render_options, state_room
 
-from decider.backend import BASE, ModelRef
+from decider.backend import BASE, ModelRef, Progress
 from decider.tasks import ConfigError, TaskSpec
 
 REPO = "convaiinnovations/laya-multilingual"
@@ -131,7 +131,7 @@ class LayaBackend:
         examples: Sequence[Any],
         seed: int,
         out_dir: Path,
-        progress: Callable[[float], None],
+        progress: Progress,
     ) -> ModelRef:
         self.check_task(task)
         epochs = self.epochs or (12 if len(examples) < 300 else 4)
@@ -147,10 +147,12 @@ class LayaBackend:
         original = laya_train.train_model
 
         def train_model(*args: Any, **kwargs: Any) -> Any:
-            kwargs["on_epoch_end"] = lambda epoch, _loss: progress((epoch + 1) / (epochs + 1))
+            kwargs["on_epoch_end"] = lambda epoch, _loss: progress(
+                (epoch + 1) / (epochs + 1), epoch=epoch + 1, epochs=epochs
+            )
             return original(*args, **kwargs)
 
-        progress(0.0)
+        progress(0.0, epoch=0, epochs=epochs)
         with tempfile.TemporaryDirectory() as tmp:
             data = Path(tmp) / "train.jsonl"
             with data.open("w", encoding="utf-8") as f:
