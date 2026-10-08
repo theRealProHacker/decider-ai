@@ -218,7 +218,7 @@ def run_backend(backend, task, train_by_id: dict, test: list[dict], subsets: dic
             ]
             with tempfile.TemporaryDirectory(prefix="decider-eval-") as tmp:
                 t0 = time.perf_counter()
-                model = backend.train(BASE, task, examples, s, Path(tmp), lambda _p: None)
+                model = backend.train(BASE, task, examples, s, Path(tmp), lambda *_a, **_k: None)
                 ft["train_seconds"][(b, s)] = time.perf_counter() - t0
                 out = [_predict_one(backend, model, task, t) for t in texts]
             ft["labels"][(b, s)] = [o[0] for o in out]
