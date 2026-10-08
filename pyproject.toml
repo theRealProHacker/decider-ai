@@ -6,7 +6,9 @@ readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.12"
 dependencies = [
+    "laya==0.4.0",
     "pyyaml>=6.0.3",
+    "torch>=2.14.1",
 ]
 
 [project.scripts]
@@ -27,3 +29,12 @@ build-backend = "hatchling.build"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["laya: tests that need the real Laya model (slow, excluded in CI)"]
+
+# CPU-only torch on Linux (no CUDA wheels).
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]

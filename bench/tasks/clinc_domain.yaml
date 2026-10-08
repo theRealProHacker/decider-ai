@@ -5,16 +5,16 @@ tasks:
   - name: clinc_domain
     question: "Which area does this request to a virtual assistant belong to?"
     labels:
-      auto_and_commute: "Car care (oil, tires, gas, maintenance, jump start), traffic, directions, distance, rides"
+      auto_and_commute: "Car care, gas, traffic, directions, distance, rides"
       banking: "Bank accounts, balances, transactions, transfers, bills, checks, fraud, interest rates"
-      credit_cards: "Credit cards: limits, rewards, APR, applications, declines, lost or damaged cards, credit score"
+      credit_cards: "Credit cards: limits, rewards, APR, applications, lost cards, credit score"
       home: "Shopping and to-do lists, reminders, calendar, playing music, orders, smart home"
       kitchen_and_dining: "Recipes, ingredients, nutrition, cooking times, restaurant suggestions and reservations"
-      meta: "Settings of the assistant itself: its name, user name, language, voice, volume; yes, no, cancel, repeat"
+      meta: "The assistant's own settings: name, language, voice; yes, no, cancel, repeat"
       small_talk: "Greetings, thanks, goodbyes, jokes and questions about the assistant itself"
-      travel: "Flights, hotels, car rental, visas, travel alerts, luggage, exchange rates, translation, time zones"
+      travel: "Flights, hotels, car rental, visas, luggage, exchange rates, translation"
       utility: "Time, date, weather, timers, alarms, calculator, definitions, spelling, calls and texts"
-      work: "Meetings, PTO, paydays, income, taxes, W-2, insurance, 401k, direct deposit"
+      work: "Meetings, PTO, paydays, income, taxes, insurance, 401k"
       out_of_scope: "A request none of these areas covers"
     max_input_tokens: 512
     zero_shot: false
