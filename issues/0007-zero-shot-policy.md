@@ -3,7 +3,7 @@ id: 7
 title: Zero-shot policy
 labels: [wayfinder:grilling]
 status: open
-assignee:
+assignee: rharvey
 parent: 1
 blocked_by: []
 ---
