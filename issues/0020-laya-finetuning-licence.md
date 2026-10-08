@@ -3,7 +3,7 @@ id: 20
 title: laya-finetuning licence
 labels: [wayfinder:task]
 status: open
-assignee:
+assignee: rharvey
 parent: 1
 blocked_by: []
 ---
