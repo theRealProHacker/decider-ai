@@ -1,4 +1,7 @@
-"""Composition root: ``python -m decider`` starts the service on the ``/data`` volume (T2.6)."""
+"""Composition root: ``python -m decider`` starts the service on the ``/data`` volume (T2.6, T2.7).
+
+``DECIDER_BACKEND=fake`` swaps in ``FakeBackend`` (tests only).
+"""
 
 from __future__ import annotations
 
@@ -14,6 +17,7 @@ from huggingface_hub import snapshot_download
 
 from decider import tasks
 from decider.backend.fake import FakeBackend
+from decider.backend.laya import LayaBackend
 from decider.core import Decider
 from decider.http import create_app
 from decider.runner import ThreadRunner
@@ -77,9 +81,15 @@ def main() -> None:
         specs = tasks.load(os.environ.get("DECIDER_TASKS", DATA / "tasks.yaml"))
         key = api_key()
         ensure_checkpoint(DATA / "hf-cache")
+        if os.environ.get("DECIDER_BACKEND") == "fake":
+            backend = FakeBackend()
+        else:
+            backend = LayaBackend(cache_dir=DATA / "hf-cache")
+            for spec in specs:
+                backend.check_task(spec)  # an over-budget task refuses to start
         decider = Decider(
             specs,
-            backend=FakeBackend(),  # T2.7 swaps in LayaBackend
+            backend=backend,
             db_path=DATA / "decider.db",
             model_dir=DATA / "models",
             runner=ThreadRunner(),

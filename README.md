@@ -4,6 +4,18 @@ decider-ai is a self-hosted container that classifies short texts into the label
 
 Status: under construction.
 
+## Host
+
+- x86-64 with AVX2, 4 or more vCPUs, 16 GB RAM. Training peaks at about 8.5 GB of memory.
+- Disk: about 678 MB for the base checkpoint plus about 678 MB per kept model version.
+- Only one retrain job runs at a time. Decisions are still answered while it trains.
+
+Things to know:
+
+- Scores are not calibrated probabilities. Use them to rank labels, not as confidence.
+- Deleting an example removes it from the data, but a trained model keeps what it learned from it until you retrain and activate the new version.
+- Backing up the volume is your responsibility.
+
 ## Run
 
 Images are published to GHCR under pinned version tags. Always use a version tag such as `v0.1.0`; never `latest`. Replace `OWNER` below with the GitHub owner of this repository.

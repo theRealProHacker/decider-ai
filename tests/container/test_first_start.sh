@@ -63,7 +63,7 @@ if [ -n "${SEED_HF_CACHE:-}" ]; then
   echo "(seeding from $SEED_HF_CACHE; empty-volume download not exercised)"
   new_vol "$SEED_VOL"
   docker run --rm -v "$SEED_HF_CACHE:/host:ro" -v "$SEED_VOL:/data" --entrypoint sh "$IMAGE" \
-    -c 'mkdir -p /data/hf-cache && cp -a /host/models--convaiinnovations--laya-multilingual /data/hf-cache/'
+    -c 'mkdir -p /data/hf-cache && cp -rL /host/models--convaiinnovations--laya-multilingual /data/hf-cache/'
 else
   new_vol "$SEED_VOL"
 fi
