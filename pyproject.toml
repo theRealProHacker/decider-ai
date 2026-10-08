@@ -12,7 +12,11 @@ decider-eval = "decider.eval_cli:main"
 
 [dependency-groups]
 dev = ["pytest"]
-bench = ["scikit-learn", "google-genai"]
+bench = [
+    "scikit-learn",
+    "google-genai",
+    "pyyaml>=6.0.3",
+]
 
 [build-system]
 requires = ["hatchling"]
