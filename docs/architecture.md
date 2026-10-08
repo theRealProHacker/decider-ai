@@ -39,12 +39,11 @@ Interface:
 class Decider:
     def __init__(self, tasks: list[TaskSpec], *, backend: Backend, runner: Runner,
                  db_path: str | Path, model_dir: Path,
-                 clock: Clock = time.time, events: Events = LogEvents(),
-                 retention: timedelta = timedelta(days=30)): ...
+                 clock: Clock = time.time, events: Events = LogEvents()): ...
 
     def decide(self, task: str, text: str, *, external_id: str | None = None) -> Decision
-    def confirm(self, items: Iterable[FromRequest | Imported]) -> list[Outcome]
-    def forget(self, ref: ExternalId | RequestId) -> Forgotten
+    def confirm(self, items: Iterable[Example]) -> list[Outcome]
+    def forget(self, external_id: str) -> Forgotten
     def retrain(self, task: str, *, refresh_split: bool = False) -> JobId
     def job(self, job_id: JobId) -> Job
     def models(self, task: str) -> list[ModelVersion]
@@ -64,8 +63,8 @@ class Decider:
 | `activate` | `Activation(warning: str \| None)` | `NotFound` |
 | `status` | per task: serving `base` / `trained` / `not_trained`, input limit, active version, confirmed count, split `Frozen` or `Pending(blocking_labels)` | |
 
-- `confirm` is the single confirmed-example path. `FromRequest(request_id, labels)` is operator feedback on a served decision; `Imported(task, text, labels, external_id, group_id=None, label_mode="assisted")` is batch import. Both land in the same store, so label validation, idempotency (upsert on `external_id`) and the expired-request rule exist once. Labels are always explicit; there is no "confirm what was served" shortcut, because that reintroduces the anchoring bias blind labelling removes.
-- `forget` reports what an erasure touched and decides no policy. What happens to split members and to versions trained on the data is the map ticket "Data lifecycle and erasure"; the result type already carries the facts.
+- `confirm` is the single confirmed-example path. `Example(task, text, labels, external_id, group_id=None, label_mode="assisted", request_id=None)` covers both operator feedback and batch import: the caller always sends the text, and `request_id` only links a correction to the served decision. Upsert on `external_id`. `decide` stores no text (decision 2026-10-08, ticket "Data lifecycle and erasure"), so there is no retention purge and no expired-request case.
+- `forget` hard-deletes every example with that `external_id` in all tasks (SQLite `secure_delete`, WAL truncated) and removes it from the frozen split, which shrinks and stays frozen. It never retrains or deletes versions; each version records the IDs it was trained on, so `models()` reports how many were later erased and `activate` warns.
 - Every error is a `DeciderError` with a stable `code` and structured fields. Decider never builds a response body; the HTTP adapter owns the body shape (map ticket "HTTP API contract details").
 
 Invariants callers can rely on:
@@ -77,9 +76,9 @@ Invariants callers can rely on:
 - Message text never reaches logs: no `Event` type has a text field.
 - `Decider` is thread-safe.
 
-Ordering: `confirm(FromRequest)` needs an earlier `decide` whose text is not yet purged. `activate` needs a version a finished job produced. The retention purge runs lazily on each call against `clock`; there is no public tick and no scheduler.
+Ordering: `activate` needs a version a finished job produced. 
 
-What it hides: the SQLite schema and migrations (keyed by `TaskSpec.version`), the retention purge, split freezing (100 examples at ≥150 confirmed, ≥10 per label, group-aware, `label_mode: blind` preferred, via `evaluation.split`), verdicts (via `evaluation.compare` and `evaluation.recommend`), the first-model rule and the `unverified` state, the atomic model swap (load, smoke prediction, flip active pointer, release old), recovery of a job orphaned by a restart, seed handling and the checkpoint layout under `model_dir`.
+What it hides: the SQLite schema and migrations (keyed by `TaskSpec.version`), split freezing (100 examples at ≥150 confirmed, ≥10 per label, group-aware, `label_mode: blind` preferred, via `evaluation.split`), verdicts (via `evaluation.compare` and `evaluation.recommend`), the first-model rule and the `unverified` state, the atomic model swap (load, smoke prediction, flip active pointer, release old), recovery of a job orphaned by a restart, seed handling and the checkpoint layout under `model_dir`.
 
 Dependencies:
 

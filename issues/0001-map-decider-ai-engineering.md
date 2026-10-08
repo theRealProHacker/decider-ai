@@ -19,6 +19,7 @@ A build-ready spec for Phase 0 (`decider-eval`) and Phase 1 (the single-containe
 - `docs/design.md` has a canonical copy at `~/.gstack/projects/decider-ai/rharvey-main-design-20261008-040445.md`. Keep both in sync when a resolution edits the design.
 - Standing rules: no automatic retrain or activation, ever (decision 83b5e76c). decider-ai never calls Gemini. No message text in logs. Deferred under decision 18271c16 (supersedes 6ef66611): web UI, Postgres, a trainer service, GPU, CLI, AGENTS.md, multi-tenancy, ONNX.
 - Laya: `LayaBackend` is built fresh on the Apache-2.0 `laya` SDK; https://github.com/tehtommeh/laya-finetuning (no licence) is reference reading only, never copied.
+- Founder preference (2026-10-08): "keep it as simple as possible, don't overthink, really anything that runs is fine." Low-stakes details take the simplest working option without grilling; only hard-to-reverse or scope calls go to the founder.
 - Planning only. Write no application code on this map.
 - The tracker is local markdown. See `docs/agents/issue-tracker.md`.
 
@@ -30,6 +31,7 @@ A build-ready spec for Phase 0 (`decider-eval`) and Phase 1 (the single-containe
 - [laya-finetuning licence](0020-laya-finetuning-licence.md) — build `LayaBackend` fresh from the Apache-2.0 `laya` SDK; laya-finetuning is inspiration only, no code copied.
 - [Zero-shot policy](0007-zero-shot-policy.md) — per-task `zero_shot`, default `false`; default flips only if (d) ≥ TF-IDF+LR@50 on every benchmark dataset; opt-in allowed, flagged unmeasured in `/health/ready`.
 - [Open-source licence](0011-open-source-licence.md) — Apache-2.0 core, MIT n8n node in its own repo, DCO, weights and datasets downloaded from pinned revisions not bundled ([ADR 0001](../docs/adr/0001-licensing.md)).
+- [Data lifecycle and erasure](0009-data-lifecycle-erasure.md) — `decide` stores no text; feedback resends text with a required `external_id`; erasure is a hard delete by `external_id` (secure_delete); split shrinks and stays frozen; versions are never deleted, only flagged with an erased-examples count.
 - [Re-verify reviewer fixes R3-1..R3-5](0002-re-verify-reviewer-fixes.md) — R3-1, R3-3, R3-4, R3-5 resolved; R3-2 partial (no comparison target for a first model), carried by First-model verdict.
 - [Public benchmark datasets](0015-public-benchmark-datasets.md) — MASSIVE 1.1 `de-DE` (scenario level, CC BY 4.0) + CLINC150 `oos_plus` (domain level, CC BY 3.0); Banking77 optional; Tobi-Bueck rejected (NC). Baselines: majority, TF-IDF+LR, zero-shot (d), fine-tune (c) at 50/100/250 × 5 seeds. `decider-eval` must accept any named optional prediction systems.
 - [Laya checkpoint facts](0003-laya-checkpoint-facts.md) — `convaiinnovations/laya-multilingual` @ `1720e3e`, Apache-2.0, 321.9M params, full fine-tune, ~678 MB per version, 1,024-token input; CPU fp32 fine-tune 11.8 min at 50 examples (measured), ~1 h at 250; ~1.6–1.8 GB RAM per loaded checkpoint, 8.5 GB training peak; zero-shot likely below majority.
