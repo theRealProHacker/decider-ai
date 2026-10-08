@@ -3,7 +3,7 @@ id: 14
 title: Build plan slicing
 labels: [wayfinder:grilling]
 status: open
-assignee:
+assignee: rharvey
 parent: 1
 blocked_by: [2, 3, 5, 7, 8, 9, 10, 11, 12, 13, 15, 17, 18, 19, 20]
 ---

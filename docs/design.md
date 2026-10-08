@@ -102,7 +102,7 @@ Single container, `docker run`. Built on `FakeBackend` until `LayaBackend` lands
 
 **n8n community node** (founder): operations "Decide" and "Send feedback" against the endpoint, so n8n users get correction capture without custom HTTP wiring. Planned outside the engineering map.
 
-**Tutorial.** The public-benchmark results from Track 1, headline set by the gate. Examples use the public datasets and the synthetic German dataset in the repo.
+**Tutorial.** The public-benchmark results from Track 1, headline set by the gate. Examples use the public MASSIVE `de-DE` set.
 
 Deliberately deferred (gstack-shortcut, decision 18271c16 (supersedes 6ef66611)): web UI, Postgres, separate trainer service, GPU profile, CLI, AGENTS.md, multi-tenant schema, ONNX/INT8. Ceiling: single process, single tenant. Upgrade when a second named customer exists or concurrent tenants are needed.
 
@@ -122,10 +122,10 @@ All engineering questions are resolved on the map (`issues/0001-map-decider-ai-e
 
 ## Distribution Plan
 
-- Container image on GHCR, pinned version tags (no `latest` in docs); GitHub Actions builds on tag.
+- Container image on GHCR, pinned version tags (no `latest` in docs); GitHub Actions runs tests on every push and builds on tag.
 - Licence: Apache-2.0 core, DCO for contributions; model weights and datasets are fetched from pinned revisions, not bundled (ADR 0001).
 - n8n community node (MIT) on npm, released from its own repository via CI with npm provenance.
-- Tutorial on own site plus the GitHub README; synthetic German dataset in the repo.
+- README (doubles as the tutorial); examples use the public MASSIVE `de-DE` set, fetched by script, not committed.
 
 ## Dependencies
 
