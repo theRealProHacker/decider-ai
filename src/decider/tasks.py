@@ -31,7 +31,7 @@ class ConfigError(Exception):
 class TaskSpec:
     name: str
     question: str
-    labels: Mapping[str, str]  # label -> one-line description, in file order
+    labels: Mapping[str, str]  # label -> one-line description ("" if none), in file order
     max_input_tokens: int | None = None
     zero_shot: bool = False
 
@@ -91,8 +91,8 @@ def load(path: str | Path) -> list[TaskSpec]:
         for label, desc in labels.items():
             if not isinstance(label, str) or not label.strip():
                 raise fail(f"{where}: label names must be non-empty strings (quote yes/no/true/false)")
-            if not isinstance(desc, str) or not desc.strip():
-                raise fail(f"{where}: label '{label}' has no description")
+            if desc is not None and not isinstance(desc, str):
+                raise fail(f"{where}: label '{label}' description must be text")
 
         max_tokens = t.get("max_input_tokens")
         if max_tokens is not None and (
@@ -103,12 +103,14 @@ def load(path: str | Path) -> list[TaskSpec]:
         zero_shot = t.get("zero_shot", False)
         if not isinstance(zero_shot, bool):
             raise fail(f"{where}: 'zero_shot' must be true or false")
+        if zero_shot and any(not (d or "").strip() for d in labels.values()):
+            raise fail(f"{where}: zero_shot needs a description for every label")
 
         specs.append(
             TaskSpec(
                 name=name,
                 question=question,
-                labels=MappingProxyType(dict(labels)),
+                labels=MappingProxyType({k: (v or "").strip() for k, v in labels.items()}),
                 max_input_tokens=max_tokens,
                 zero_shot=zero_shot,
             )

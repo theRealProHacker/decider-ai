@@ -55,7 +55,8 @@ def task(**overrides):
     [
         ({"tasks": [task(question=...)]}, "question"),
         ({"tasks": [task(labels={"a": "A desc"})]}, "at least 2 labels"),
-        ({"tasks": [task(labels={"a": "A desc", "b": None})]}, "no description"),
+        ({"tasks": [task(labels={"a": "A desc", "b": None}, zero_shot=True)]}, "zero_shot needs a description"),
+        ({"tasks": [task(labels={"a": "A desc", "b": 3})]}, "description must be text"),
         ({"tasks": [task(), task()]}, "duplicate task name"),
         ({"tasks": [task(zero_shot="yes")]}, "zero_shot"),
         ({"tasks": [task(max_input_tokens=0)]}, "max_input_tokens"),
@@ -91,3 +92,10 @@ def test_label_set_hash_ignores_descriptions():
     assert a.label_set_hash == b.label_set_hash
     assert a.label_set_hash != c.label_set_hash
     assert a.label_set_hash != d.label_set_hash
+
+
+def test_descriptions_optional_without_zero_shot(tmp_path):
+    p = tmp_path / "tasks.yaml"
+    p.write_text("tasks:\n  - name: t\n    question: Which queue?\n    labels:\n      billing:\n      tech: ''\n      sales: Buying things\n")
+    [spec] = load(p)
+    assert dict(spec.labels) == {"billing": "", "tech": "", "sales": "Buying things"}

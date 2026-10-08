@@ -99,7 +99,7 @@ class LayaBackend:
         if built != need:
             raise ConfigError(
                 f"task '{task.name}': question and label descriptions need {need} tokens, "
-                f"the model allows {budget} (each description at most 48); shorten them"
+                f"the model allows {budget} (each description at most 48); shorten or drop the label descriptions (fine-tuned tasks work with label names only)"
             )
         self._checked.add(key)
 
