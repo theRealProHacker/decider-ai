@@ -17,7 +17,7 @@ A build-ready spec for Phase 0 (`decider-eval`) and Phase 1 (the single-containe
 - Domain: a self-hosted replacement for the LLM classification call that learns from corrections. No named user yet; the launch is the demand test. Sources: `docs/design.md` (product), `docs/architecture.md` (modules), `DESIGN.md` (visual).
 - Skills: `/grilling` and `/domain-modeling` for grilling tickets (resolve terms into `CONTEXT.md` as they settle; ADRs only when hard to reverse, surprising, and a real trade-off). `/prototype` for prototype tickets.
 - `docs/design.md` has a canonical copy at `~/.gstack/projects/decider-ai/rharvey-main-design-20261008-040445.md`. Keep both in sync when a resolution edits the design.
-- Standing rules: no automatic retrain or activation, ever (decision 83b5e76c). decider-ai never calls Gemini. No message text in logs. Deferred under decision 6ef66611: web UI, Postgres, a trainer service, GPU, CLI, AGENTS.md, multi-tenancy, ONNX.
+- Standing rules: no automatic retrain or activation, ever (decision 83b5e76c). decider-ai never calls Gemini. No message text in logs. Deferred under decision 18271c16 (supersedes 6ef66611): web UI, Postgres, a trainer service, GPU, CLI, AGENTS.md, multi-tenancy, ONNX.
 - Laya fine-tuning project: https://github.com/tehtommeh/laya-finetuning. It has no licence, so its code is not reusable until [laya-finetuning licence](0020-laya-finetuning-licence.md) resolves.
 - Planning only. Write no application code on this map.
 - The tracker is local markdown. See `docs/agents/issue-tracker.md`.
@@ -44,4 +44,4 @@ A build-ready spec for Phase 0 (`decider-eval`) and Phase 1 (the single-containe
 - The n8n community node. It is in the launch but planned separately (founder, 2026-10-08).
 - Writing the SEO tutorial and blog posts.
 - The SaaS and §203 hosting question (decided after launch signals).
-- Everything deferred under decision 6ef66611.
+- Everything deferred under decision 18271c16 (supersedes 6ef66611).

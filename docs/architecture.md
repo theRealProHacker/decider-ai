@@ -94,7 +94,7 @@ Dependencies:
 | `tasks.yaml` | pure | none, caller passes `list[TaskSpec]` from `tasks.load` | — |
 | `evaluation` | pure | called directly | — |
 
-Rejected in the design-it-twice round: a command bus (`handle(Command)`, adds tenant/policy/event seams with nothing varying across them, against decision 6ef66611); `submit`/`state` (per-item outcomes let `Busy` pass unnoticed, whole-container snapshot per job poll); `feedback(labels=None)` and `job_id == version` (anchoring bias; breaks for `refresh_split` re-evaluation and failed jobs); an `operator` namespace (cosmetic, auth lives in the adapter).
+Rejected in the design-it-twice round: a command bus (`handle(Command)`, adds tenant/policy/event seams with nothing varying across them, against decision 18271c16 (supersedes 6ef66611)); `submit`/`state` (per-item outcomes let `Busy` pass unnoticed, whole-container snapshot per job poll); `feedback(labels=None)` and `job_id == version` (anchoring bias; breaks for `refresh_split` re-evaluation and failed jobs); an `operator` namespace (cosmetic, auth lives in the adapter).
 
 ### `evaluation` — pure statistics, shared by both phases
 
@@ -153,7 +153,7 @@ Dockerfile
 
 - **Store port.** SQLite runs in memory for tests, and Postgres is deferred. One adapter is a hypothetical seam.
 - **Gemini/LLM adapter.** Phase 0 baselines arrive as exported predictions, so no LLM client ships in the container.
-- **Separate trainer service.** The job runner lives inside `Decider` until a second tenant appears (decision 6ef66611).
+- **Separate trainer service.** The job runner lives inside `Decider` until a second tenant appears (decision 18271c16 (supersedes 6ef66611)).
 
 ## Open, from the design doc
 

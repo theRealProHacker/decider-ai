@@ -104,7 +104,7 @@ Single container, `docker run`. Built on `FakeBackend` until `LayaBackend` lands
 
 **Tutorial.** The public-benchmark results from Track 1, headline set by the gate. Examples use the public datasets and the synthetic German dataset in the repo.
 
-Deliberately deferred (gstack-shortcut, decision 6ef66611): web UI, Postgres, separate trainer service, GPU profile, CLI, AGENTS.md, multi-tenant schema, ONNX/INT8. Ceiling: single process, single tenant. Upgrade when a second named customer exists or concurrent tenants are needed.
+Deliberately deferred (gstack-shortcut, decision 18271c16 (supersedes 6ef66611)): web UI, Postgres, separate trainer service, GPU profile, CLI, AGENTS.md, multi-tenant schema, ONNX/INT8. Ceiling: single process, single tenant. Upgrade when a second named customer exists or concurrent tenants are needed.
 
 ## Open Questions
 
