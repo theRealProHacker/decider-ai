@@ -63,7 +63,7 @@ class Decider:
 | `activate` | `Activation(warning: str \| None)` | `NotFound` |
 | `status` | per task: serving `base` / `trained` / `not_trained`, input limit, active version, confirmed count, split `Frozen` or `Pending(blocking_labels)` | |
 
-- `confirm` is the single confirmed-example path. `Example(task, text, labels, external_id, group_id=None, label_mode="assisted", request_id=None)` covers both operator feedback and batch import: the caller always sends the text, and `request_id` only links a correction to the served decision. Upsert on `external_id`. `decide` stores no text (decision 2026-10-08, ticket "Data lifecycle and erasure"), so there is no retention purge and no expired-request case.
+- `confirm` is the single confirmed-example path. `Example(task, text, label, external_id, group_id=None, label_mode="assisted", request_id=None)` covers both operator feedback and batch import: the caller always sends the text, and `request_id` only links a correction to the served decision. Upsert on `external_id`. `decide` stores no text (decision 2026-10-08, ticket "Data lifecycle and erasure"), so there is no retention purge and no expired-request case.
 - `forget` hard-deletes every example with that `external_id` in all tasks (SQLite `secure_delete`, WAL truncated) and removes it from the frozen split, which shrinks and stays frozen. It never retrains or deletes versions; each version records the IDs it was trained on, so `models()` reports how many were later erased and `activate` warns.
 - Every error is a `DeciderError` with a stable `code` and structured fields. Decider never builds a response body; the HTTP adapter owns the body shape (map ticket "HTTP API contract details").
 
