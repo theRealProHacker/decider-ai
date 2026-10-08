@@ -12,9 +12,8 @@ Status: under construction.
 
 Things to know:
 
-- Scores are not calibrated probabilities. Use them to rank labels, not as confidence.
+- The `predictions` scores are not calibrated probabilities. Use them to rank labels, not as confidence.
 - Deleting an example removes it from the data, but a trained model keeps what it learned from it until you retrain and activate the new version.
-- Backing up the volume is your responsibility.
 
 ## Run
 
@@ -40,7 +39,7 @@ Images are published to GHCR under pinned version tags. Always use a version tag
 
 3. Check it: `curl 127.0.0.1:8080/health/live`, then `curl -H "Authorization: Bearer <key>" 127.0.0.1:8080/health/ready`.
 
-The volume holds everything: `tasks.yaml`, `api_key`, `decider.db`, `models/` and `hf-cache/`. Backing it up is up to you.
+The volume holds everything: `tasks.yaml`, `api_key`, `decider.db`, `models/` and `hf-cache/`. Backing it up is your responsibility.
 
 ### Base checkpoint and offline hosts
 

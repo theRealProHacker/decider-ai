@@ -176,5 +176,10 @@ def test_laya_in_container(volume):
                    "-name", "*.safetensors").stdout
         assert found.strip(), "no candidate checkpoint under /data/models"
         assert job["version"] in [m["version"] for m in c.get("/v1/tasks/massive/models").json()["models"]]
+
+        # No message text in logs, training included.
+        logs = sh("docker", "logs", name).stdout + sh("docker", "logs", name).stderr
+        leaked = sum(t in logs for t in [r["text"] for r in recs[:60]] + [at_limit])
+        assert leaked == 0, f"{leaked} message texts found in docker logs"
     finally:
         sh("docker", "rm", "-f", name, check=False)
