@@ -27,6 +27,7 @@ A build-ready spec for Phase 0 (`decider-eval`) and Phase 1 (the single-containe
 - The n8n node stays in the Phase 1 launch, per `docs/design.md`. Its planning happens outside this map. Reviewer concern R3-13 stays as recorded.
 - [Decider interface](../docs/architecture.md) (2026-10-08, design-it-twice round, no ticket): 8 methods with ports and adapters. `confirm` merges feedback and import, `forget` reports facts without deciding a policy, errors are a `code` plus fields, and the `Runner`/`Events` ports have two adapters each.
 - [Re-verify reviewer fixes R3-1..R3-5](0002-re-verify-reviewer-fixes.md) — R3-1, R3-3, R3-4, R3-5 resolved; R3-2 partial (no comparison target for a first model), carried by First-model verdict.
+- [Public benchmark datasets](0015-public-benchmark-datasets.md) — MASSIVE 1.1 `de-DE` (scenario level, CC BY 4.0) + CLINC150 `oos_plus` (domain level, CC BY 3.0); Banking77 optional; Tobi-Bueck rejected (NC). Baselines: majority, TF-IDF+LR, zero-shot (d), fine-tune (c) at 50/100/250 × 5 seeds. `decider-eval` must accept any named optional prediction systems.
 
 ## Not yet specified
 
