@@ -2,7 +2,7 @@
 id: 1
 title: "Map: decider-ai engineering plan"
 labels: [wayfinder:map]
-status: open
+status: closed
 assignee:
 parent:
 blocked_by: []
@@ -41,6 +41,7 @@ A build-ready spec for Phase 0 (`decider-eval`) and Phase 1 (the single-containe
 - [Task versioning](0018-task-versioning.md) — none: a changed label set needs a new task name, startup refuses otherwise.
 - [Training procedure](0019-training-procedure.md) — `laya.train` pinned; fp32; 12 epochs under 300 examples else 4; no calibration; one checkpoint per task; token check before SDK truncates; random stored seed.
 - Fog settled without tickets (simplest that runs): SQLite schema is an implementation detail of the build slices; CI is GitHub Actions (pytest on `FakeBackend` per push, DCO check, image build and push to GHCR on tag); no synthetic dataset, the README and tutorial use the public MASSIVE `de-DE` set; docs are the README only.
+- [Build plan slicing](0014-build-plan-slicing.md) — `docs/build-plan.md`: Track 1 T1.1–T1.6 and Track 2 T2.1–T2.8 in parallel, join at T2.7; glossary in `CONTEXT.md`. **Destination reached.**
 - [Re-verify reviewer fixes R3-1..R3-5](0002-re-verify-reviewer-fixes.md) — R3-1, R3-3, R3-4, R3-5 resolved; R3-2 partial (no comparison target for a first model), carried by First-model verdict.
 - [Public benchmark datasets](0015-public-benchmark-datasets.md) — MASSIVE 1.1 `de-DE` (scenario level, CC BY 4.0) + CLINC150 `oos_plus` (domain level, CC BY 3.0); Banking77 optional; Tobi-Bueck rejected (NC). Baselines: majority, TF-IDF+LR, zero-shot (d), fine-tune (c) at 50/100/250 × 5 seeds. `decider-eval` must accept any named optional prediction systems.
 - [Laya checkpoint facts](0003-laya-checkpoint-facts.md) — `convaiinnovations/laya-multilingual` @ `1720e3e`, Apache-2.0, 321.9M params, full fine-tune, ~678 MB per version, 1,024-token input; CPU fp32 fine-tune 11.8 min at 50 examples (measured), ~1 h at 250; ~1.6–1.8 GB RAM per loaded checkpoint, 8.5 GB training peak; zero-shot likely below majority.

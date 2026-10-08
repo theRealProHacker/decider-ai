@@ -23,3 +23,7 @@ Delegated by the founder ("keep it as simple as possible, don't overthink, reall
 - Seeds: Phase 0 uses 0–4; product retrains use a random seed stored on the version.
 - Checkpoints in the SDK's layout; every version kept.
 Brief: `../docs/briefs/0019-training-procedure.md`.
+
+## Note (2026-10-08, build-plan contradiction C12)
+
+`laya.train` always holds out 10% of the training examples to fit a temperature; that SDK default is kept as is (simplest). "No calibration" above means decider-ai adds no calibration logic of its own; the frozen split is still never used for training or calibration.

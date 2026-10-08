@@ -1,5 +1,8 @@
 # Laya checkpoint facts
 
+> Note (2026-10-08): written before the wedge rethink. Where this file mentions Pilot, the Pilot gate, a synthetic dataset, (a)/(b) Gemini systems, plural `labels` or `input.text`, the approved `docs/design.md` and the map's Decisions so far take precedence (public-benchmark gate, flat `text` + singular `label`, standalone LLM prep script).
+
+
 Research for [issue 0003](../../issues/0003-laya-checkpoint-facts.md). It answers design Open Question 1 and reviewer concern R3-14. Researched 2026-10-08.
 
 Each fact is labelled:

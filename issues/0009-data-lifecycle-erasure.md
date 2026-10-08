@@ -19,7 +19,7 @@ Also carries spec-review findings on the approved design: R2-1 (a confirmed exam
 ## Resolution
 
 Founder, 2026-10-08 (brief `../docs/briefs/0009-data-lifecycle-erasure.md`):
-- Store as little as possible: `decide` stores no text. Feedback sends `{task, text, labels, external_id, request_id?}`; `external_id` is required. No retention purge, no `REQUEST_EXPIRED`, no tombstones. (Supersedes the session's earlier answers on delete-by-`request_id` and tombstones.)
+- Store as little as possible: `decide` stores no text. Feedback sends `{task, text, label, external_id, request_id?}`; `external_id` is required. No retention purge, no `REQUEST_EXPIRED`, no tombstones. (Supersedes the session's earlier answers on delete-by-`request_id` and tombstones.)
 - Erasure: `DELETE /v1/examples/{external_id}` hard-deletes that ID's examples in all tasks; SQLite `secure_delete` on and WAL truncated after each erasure; backups are the operator's job.
 - Frozen split after deletion: shrinks and stays frozen; the per-label minimum applies only at freeze time; status names labels now below 10; top-up only via `refresh_split`.
 - Verdicts are kept; each records split revision and size.

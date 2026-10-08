@@ -1,6 +1,6 @@
 # decider-ai — module design
 
-Implements `docs/design.md` (Phase 0 eval, Phase 1 single-container endpoint). Language: Python 3.12 for everything except the n8n node (TypeScript). Storage: stdlib `sqlite3`. HTTP: FastAPI.
+Implements `docs/design.md` (Phase 0 eval, Phase 1 single-container endpoint). Language: Python 3.12 (the n8n node lives in its own repository, ADR 0001). Storage: stdlib `sqlite3`. HTTP: FastAPI.
 
 ## Module map
 
@@ -55,12 +55,12 @@ class Decider:
 | Operation | Returns | Errors |
 |---|---|---|
 | `decide` | `Decision(request_id, model_version, predictions: {label: score})` | `UnknownTask`, `InputTooLong(limit)`, `NotTrained` |
-| `confirm` | one `Outcome(index, kind: added \| updated \| rejected, reason)` per item, in order | per item, never raised: unknown or expired request, invalid label |
+| `confirm` | one `Outcome(index, kind: added \| updated \| rejected, reason)` per item, in order | per item, never raised: unknown task, label not in task, missing `external_id` |
 | `forget` | `Forgotten(examples_removed, split_members_removed, versions_trained_on)` | `NotFound` |
 | `retrain` | `JobId` | `Busy(job_id)`, `TooFewExamples(have, need=50)` |
 | `job` | `Job(state, progress, verdict, metrics)` | `NotFound` |
 | `models` | `[ModelVersion(version, verdict, metrics, active)]` | `UnknownTask` |
-| `activate` | `Activation(warning: str \| None)` | `NotFound` |
+| `activate` | `Activation(warning: str \| None)` | `NotFound`, `ActivationFailed` (smoke prediction failed; active model unchanged) |
 | `status` | per task: serving `base` / `trained` / `not_trained`, input limit, active version, confirmed count, split `Frozen` or `Pending(blocking_labels)` | |
 
 - `confirm` is the single confirmed-example path. `Example(task, text, label, external_id, group_id=None, label_mode="assisted", request_id=None)` covers both operator feedback and batch import: the caller always sends the text, and `request_id` only links a correction to the served decision. Upsert on `external_id`. `decide` stores no text (decision 2026-10-08, ticket "Data lifecycle and erasure"), so there is no retention purge and no expired-request case.
@@ -125,7 +125,7 @@ It is a true external dependency (a third-party model and PyTorch), so it gets a
 
 ### Adapters
 
-- **HTTP** (`http.py`): routes onto `Decider`, maps `DeciderError.code` to statuses (`InputTooLong`→413, `NotTrained`→503, `Busy`→409, `TooFewExamples`→422, `NotFound`→404) and renders per-item `confirm` outcomes as `{"error": {"code", "message", ...}}`, and handles Bearer API-key auth (every route except `/health/live`). No logic. Tested with a handful of route tests only.
+- **HTTP** (`http.py`): routes onto `Decider`, maps `DeciderError.code` to statuses (`InputTooLong`→413, `NotTrained`→503, `Busy`→409, `TooFewExamples`→422, `NotFound`→404, `ActivationFailed`→500) and renders per-item `confirm` outcomes as `{"error": {"code", "message", ...}}`, and handles Bearer API-key auth (every route except `/health/live`). No logic. Tested with a handful of route tests only.
 - **`decider-eval`** (`eval_cli.py`): reads labelled JSONL in the record format with any number of named, optional external prediction systems (majority, TF-IDF + LR, and (b) the LLM baseline, whose predictions, latency and token counts come from a standalone prep script; the product never calls an LLM). (c) is the fine-tune over 5 seeds via `Backend`; (d) is zero-shot via `Backend`. Runs `evaluation`, writes a report (JSON + Markdown) of aggregate numbers only.
 - **n8n node**: in its own MIT-licensed repository (ADR 0001); one node with two operations, Decide and Send feedback, plus an API-key credential. HTTP calls only.
 

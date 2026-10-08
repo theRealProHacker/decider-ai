@@ -1,5 +1,8 @@
 # Public benchmark datasets
 
+> Note (2026-10-08): written before the wedge rethink. Where this file mentions Pilot, the Pilot gate, a synthetic dataset, (a)/(b) Gemini systems, plural `labels` or `input.text`, the approved `docs/design.md` and the map's Decisions so far take precedence (public-benchmark gate, flat `text` + singular `label`, standalone LLM prep script).
+
+
 Ticket: [Public benchmark datasets](../../issues/0015-public-benchmark-datasets.md). Researched 2026-10-08.
 
 This benchmark gives decider-ai reproducible, publishable numbers while Pilot data is pending. **It does not replace the Phase 0 Pilot gate.** The action gate and urgency gate in `docs/design.md` (steps 5–8) are decided only on blind, rule-unmatched Pilot mail. Public-set numbers never set the tutorial headline and never feed `action_gate` or `urgency_gate`.
