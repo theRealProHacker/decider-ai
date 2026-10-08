@@ -1,0 +1,26 @@
+# MASSIVE 1.1 de-DE, scenario level. Labels and descriptions:
+# docs/research/public-benchmark-datasets.md (section 1).
+tasks:
+  - name: massive_de_scenario
+    question: "Worum geht es in dieser Anfrage an einen Sprachassistenten?"
+    labels:
+      alarm: "Wecker stellen, abfragen oder löschen"
+      audio: "Lautstärke ändern oder stummschalten"
+      calendar: "Termine und Erinnerungen anlegen, abfragen oder löschen"
+      cooking: "Rezepte und Kochfragen"
+      datetime: "Uhrzeit oder Datum abfragen, Zeitzonen umrechnen"
+      email: "E-Mails lesen oder senden, Kontakte verwalten"
+      general: "Smalltalk, Witze, Begrüßungen und Äußerungen ohne klaren Auftrag"
+      iot: "Smart-Home-Geräte steuern (Licht, Steckdosen, Staubsauger, Kaffeemaschine)"
+      lists: "Listen anlegen, ergänzen, abfragen oder löschen"
+      music: "Musikgeschmack mitteilen, laufenden Titel erfragen, Musikeinstellungen"
+      news: "Nachrichten abfragen"
+      play: "Musik, Radio, Podcasts, Hörbücher oder Spiele starten"
+      qa: "Wissensfragen, Definitionen, Rechnen, Währungen, Aktienkurse"
+      recommendation: "Empfehlungen für Veranstaltungen, Orte oder Filme"
+      social: "In sozialen Medien posten oder dort nachsehen, Beschwerden an Firmen"
+      takeaway: "Essen bestellen oder Bestellstatus abfragen"
+      transport: "Tickets, Taxi, Verkehrslage, Fahrpläne"
+      weather: "Wetter abfragen"
+    max_input_tokens: 512
+    zero_shot: false
