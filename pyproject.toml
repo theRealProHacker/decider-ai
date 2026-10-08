@@ -6,6 +6,7 @@ readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.12"
 dependencies = [
+    "fastapi>=0.142.4",
     "pyyaml>=6.0.3",
 ]
 
@@ -13,7 +14,10 @@ dependencies = [
 decider-eval = "decider.eval_cli:main"
 
 [dependency-groups]
-dev = ["pytest"]
+dev = [
+    "httpx>=0.28.1",
+    "pytest",
+]
 bench = [
     "scikit-learn",
     "google-genai",
