@@ -5,7 +5,9 @@ description = "Self-hosted text classifier that learns from your decisions."
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pyyaml>=6.0.3",
+]
 
 [project.scripts]
 decider-eval = "decider.eval_cli:main"
