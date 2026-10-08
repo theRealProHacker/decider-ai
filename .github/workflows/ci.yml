@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      - run: uv sync --locked
+      - run: uv sync --locked --all-groups
       - run: uv run pytest -m "not laya"
 
   dco:
