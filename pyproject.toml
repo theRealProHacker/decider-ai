@@ -1,0 +1,23 @@
+[project]
+name = "decider"
+version = "0.0.0"
+description = "Self-hosted text classifier that learns from your decisions."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+decider-eval = "decider.eval_cli:main"
+
+[dependency-groups]
+dev = ["pytest"]
+bench = ["scikit-learn", "google-genai"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["laya: tests that need the real Laya model (slow, excluded in CI)"]
