@@ -4,9 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Protocol, Sequence
+from typing import TYPE_CHECKING, Callable, Protocol, Sequence
 
 from decider.tasks import TaskSpec
+
+if TYPE_CHECKING:
+    from decider.core import Example
 
 
 @dataclass(frozen=True)
@@ -29,10 +32,12 @@ class Backend(Protocol):
         self,
         base: ModelRef,
         task: TaskSpec,
-        examples: Sequence[Any],  # Examples with .text and .label
+        examples: Sequence[Example],
         seed: int,
         out_dir: Path,
         progress: Callable[[float], None],
     ) -> ModelRef: ...
 
     def max_input(self, task: TaskSpec) -> int: ...
+
+    def count_tokens(self, text: str) -> int: ...
