@@ -103,7 +103,7 @@ def test_train_learns_training_labels(backend, task, tmp_path):
     start = time.perf_counter()
     from decider.backend import BASE
 
-    ref = backend.train(BASE, task, examples, seed=0, out_dir=tmp_path / "v1", progress=seen.append)
+    ref = backend.train(BASE, task, examples, seed=0, out_dir=tmp_path / "v1", progress=lambda p, **_: seen.append(p))
     took = time.perf_counter() - start
     print(f"\ntrain {len(examples)} examples, 1 epoch: {took:.1f}s, peak RSS {_peak_rss_gb():.2f} GB")
 

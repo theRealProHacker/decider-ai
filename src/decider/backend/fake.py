@@ -5,9 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Callable, Sequence
+from typing import Any, Sequence
 
-from decider.backend import BASE, ModelRef
+from decider.backend import BASE, ModelRef, Progress
 from decider.tasks import TaskSpec
 
 
@@ -77,7 +77,7 @@ class FakeBackend:
         examples: Sequence[Any],
         seed: int,
         out_dir: Path,
-        progress: Callable[[float], None],
+        progress: Progress,
     ) -> ModelRef:
         memory = dict(self._load(base) or {})
         n = len(examples)

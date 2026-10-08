@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Protocol, Sequence
+from typing import TYPE_CHECKING, Protocol, Sequence
 
 from decider.tasks import TaskSpec
 
@@ -23,6 +23,14 @@ class ModelRef:
 BASE = ModelRef("base")
 
 
+class Progress(Protocol):
+    """Training progress: ``fraction`` in 0..1, plus the current and total epoch when known."""
+
+    def __call__(
+        self, fraction: float, *, epoch: int | None = None, epochs: int | None = None
+    ) -> None: ...
+
+
 class Backend(Protocol):
     def predict(
         self, model: ModelRef, task: TaskSpec, texts: list[str]
@@ -35,7 +43,7 @@ class Backend(Protocol):
         examples: Sequence[Example],
         seed: int,
         out_dir: Path,
-        progress: Callable[[float], None],
+        progress: Progress,
     ) -> ModelRef: ...
 
     def max_input(self, task: TaskSpec) -> int: ...

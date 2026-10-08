@@ -215,6 +215,7 @@ def test_retrain_job_models_activate(client):
     job_id = r.json()["job_id"]
     job = client.get(f"/v1/jobs/{job_id}").json()
     assert job["state"] == "succeeded" and job["progress"] == 1
+    assert job["epoch"] is None and job["epochs"] is None  # FakeBackend reports no epochs
     assert job["verdict"] == "unverified"
     assert "metrics" in job
     err(client.get("/v1/jobs/nope"), 404, "NOT_FOUND")

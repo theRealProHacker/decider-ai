@@ -152,6 +152,25 @@ def test_job_progress_is_visible_while_running(env):
     d.backend.train = train
     runner.release()
     assert seen[0].state == "running" and seen[0].progress > 0
+    assert seen[0].epoch is None and seen[0].epochs is None  # FakeBackend reports no epochs
+
+
+class EpochBackend(FakeBackend):
+    def train(self, base, task, examples, seed, out_dir, progress):
+        progress(0.0, epoch=0, epochs=3)
+        progress(0.5, epoch=2, epochs=3)
+        return super().train(base, task, examples, seed, out_dir, progress)
+
+
+def test_job_shows_epoch_when_backend_reports_it(env):
+    runner = ManualRunner()
+    d = env(runner=runner, backend=EpochBackend(max_tokens=50))
+    feed(d, "nz", 60)
+    job_id = d.retrain("nz")
+    assert d.job(job_id).epoch is None and d.job(job_id).epochs is None  # not started
+    runner.release()
+    job = d.job(job_id)
+    assert job.state == "succeeded" and (job.epoch, job.epochs) == (2, 3)
 
 
 def test_job_unknown_raises_not_found(env):
