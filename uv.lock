@@ -345,6 +345,7 @@ dependencies = [
 [package.dev-dependencies]
 bench = [
     { name = "google-genai" },
+    { name = "pyyaml" },
     { name = "scikit-learn" },
 ]
 dev = [
@@ -357,6 +358,7 @@ requires-dist = [{ name = "pyyaml", specifier = ">=6.0.3" }]
 [package.metadata.requires-dev]
 bench = [
     { name = "google-genai" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "scikit-learn" },
 ]
 dev = [{ name = "pytest" }]
