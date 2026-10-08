@@ -3,7 +3,7 @@ id: 9
 title: Data lifecycle and erasure
 labels: [wayfinder:grilling]
 status: open
-assignee:
+assignee: rharvey
 parent: 1
 blocked_by: []
 ---
