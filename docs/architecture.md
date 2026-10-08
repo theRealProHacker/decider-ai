@@ -78,7 +78,7 @@ Invariants callers can rely on:
 
 Ordering: `activate` needs a version a finished job produced. 
 
-What it hides: the SQLite schema and migrations (keyed by `TaskSpec.version`), split freezing (100 examples at ≥150 confirmed, ≥10 per label, group-aware, `label_mode: blind` preferred, via `evaluation.split`), verdicts (via `evaluation.compare` and `evaluation.recommend`), the first-model rule and the `unverified` state, the atomic model swap (load, smoke prediction, flip active pointer, release old), recovery of a job orphaned by a restart, seed handling and the checkpoint layout under `model_dir`.
+What it hides: the SQLite schema, split freezing (100 examples at ≥150 confirmed, at least `min(10, 100 // number_of_labels)` per label, group-aware, `label_mode: blind` preferred, via `evaluation.split`), verdicts (via `evaluation.compare` and `evaluation.recommend`), the first-model rule and the `unverified` state, the atomic model swap (load, smoke prediction, flip active pointer, release old), recovery of a job orphaned by a restart, seed handling and the checkpoint layout under `model_dir`.
 
 Dependencies:
 
@@ -100,8 +100,7 @@ Rejected in the design-it-twice round: a command bus (`handle(Command)`, adds te
 Interface:
 - `split(examples, size, min_per_label, prefer_blind=True) -> Split | NotEnough(blocking_labels)`: group-aware.
 - `compare(gold, a, b_by_seed, groups, metric="macro_f1", resamples=2000) -> Comparison(delta, ci_low, ci_high, n)`: paired bootstrap on the difference; it averages seeds inside each resample.
-- `action_gate(cmp, n_test, per_class) -> Proceed | ReScope | LabelMore`: the Phase 0 branches, in order.
-- `urgency_gate(cmp_mae) -> Switch | Keep`.
+- `gate(per_dataset: list[GateInput]) -> Rescope | Launch`: the Phase 0 cost-benefit rule; `GateInput` holds the LLM-vs-(c) macro-F1 comparison at 250 labels plus both systems' cost per 1,000 decisions and p95 latency. `Rescope` only if the LLM is cheaper, faster and better (CI above zero) on every dataset.
 - `recommend(cmp, split_frozen) -> Recommended | NotRecommended | Unverified`: advisory only.
 
 In-process, no I/O. Two callers, `Decider` and `decider-eval`, so the rules that decide both the tutorial headline and the retrain recommendation exist exactly once. Tests feed literal arrays.
@@ -122,13 +121,13 @@ It is a true external dependency (a third-party model and PyTorch), so it gets a
 
 ### `tasks` — `tasks.yaml` to `TaskSpec`
 
-`load(path) -> list[TaskSpec]`, which raises `ConfigError` with the path and reason. `TaskSpec` holds the name, question, labels with descriptions, multi-class flag, max length, `zero_shot` flag and version hash. Changing the label set changes the version. Pure.
+`load(path) -> list[TaskSpec]`, which raises `ConfigError` with the path and reason. `TaskSpec` holds the name, question, labels with descriptions, max length and `zero_shot` flag. Phase 1 is single-label. A task's label set is fixed for its name; the store rejects a changed label set at startup. Pure.
 
 ### Adapters
 
-- **HTTP** (`http.py`): routes onto `Decider`, maps `DeciderError.code` to statuses (`InputTooLong`→413, `NotTrained`→503, `Busy`→409, `TooFewExamples`→422, `NotFound`→404) and renders per-item `confirm` outcomes; the body shape is decided in the map ticket "HTTP API contract details", and handles API-key auth. No logic. Tested with a handful of route tests only.
-- **`decider-eval`** (`eval_cli.py`): reads the Pilot JSONL export. Systems (a) rules and (b) Gemini come as predictions inside the export. decider-ai never calls Gemini. (c) is the fine-tune over 5 seeds via `Backend`; (d) is zero-shot via `Backend`. Runs `evaluation`, writes a report (JSON + Markdown) of aggregate numbers only.
-- **n8n node** (`n8n-nodes-decider-ai/`): one node with two operations, Decide and Send feedback, plus an API-key credential. HTTP calls only.
+- **HTTP** (`http.py`): routes onto `Decider`, maps `DeciderError.code` to statuses (`InputTooLong`→413, `NotTrained`→503, `Busy`→409, `TooFewExamples`→422, `NotFound`→404) and renders per-item `confirm` outcomes as `{"error": {"code", "message", ...}}`, and handles Bearer API-key auth (every route except `/health/live`). No logic. Tested with a handful of route tests only.
+- **`decider-eval`** (`eval_cli.py`): reads labelled JSONL in the record format with any number of named, optional external prediction systems (majority, TF-IDF + LR, and (b) the LLM baseline, whose predictions, latency and token counts come from a standalone prep script; the product never calls an LLM). (c) is the fine-tune over 5 seeds via `Backend`; (d) is zero-shot via `Backend`. Runs `evaluation`, writes a report (JSON + Markdown) of aggregate numbers only.
+- **n8n node**: in its own MIT-licensed repository (ADR 0001); one node with two operations, Decide and Send feedback, plus an API-key credential. HTTP calls only.
 
 ## Layout
 
@@ -144,17 +143,16 @@ src/decider/
   http.py
   eval_cli.py
 tests/             through Decider and evaluation interfaces; FakeBackend
-n8n-nodes-decider-ai/
+scripts/           dataset fetch + LLM baseline prep (public data, outside the container)
 Dockerfile
 ```
 
 ## Seams deliberately not introduced
 
 - **Store port.** SQLite runs in memory for tests, and Postgres is deferred. One adapter is a hypothetical seam.
-- **Gemini/LLM adapter.** Phase 0 baselines arrive as exported predictions, so no LLM client ships in the container.
+- **LLM adapter in the product.** The LLM baseline is produced by a standalone prep script and read as predictions, so no LLM client ships in the container.
 - **Separate trainer service.** The job runner lives inside `Decider` until a second tenant appears (decision 18271c16 (supersedes 6ef66611)).
 
-## Open, from the design doc
+## Open
 
-- **What happens to a checkpoint trained on deleted data** (R3-12): keep it until the next retrain, or force a retrain? This is a policy for you to decide, not a structural choice; it lives behind `delete_example`.
-- **Pilot side:** `LLMClient` is a prompt-to-text interface. A decision endpoint behind it would be a shallow fit. Pilot probably needs a `DecisionClient` seam next to it, with two adapters (gateway LLM and `local`). Decide that in Pilot's own design.
+None. Both former open items are settled: checkpoints trained on erased data are kept and flagged (ticket "Data lifecycle and erasure"); the Pilot `DecisionClient` question left with Pilot ("Rethink the Pilot wedge").
