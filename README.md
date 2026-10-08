@@ -4,6 +4,17 @@ decider-ai is a self-hosted container that classifies short texts into the label
 
 Status: under construction.
 
+## Host
+
+- x86-64 with AVX2, 4 or more vCPUs, 16 GB RAM. Training peaks at about 8.5 GB of memory.
+- Disk: about 678 MB for the base checkpoint plus about 678 MB per kept model version.
+- Only one retrain job runs at a time. Decisions are still answered while it trains.
+
+Things to know:
+
+- The `predictions` scores are not calibrated probabilities. Use them to rank labels, not as confidence.
+- Deleting an example removes it from the data, but a trained model keeps what it learned from it until you retrain and activate the new version.
+
 ## Run
 
 Images are published to GHCR under pinned version tags. Always use a version tag such as `v0.1.0`; never `latest`. Replace `OWNER` below with the GitHub owner of this repository.
@@ -28,7 +39,7 @@ Images are published to GHCR under pinned version tags. Always use a version tag
 
 3. Check it: `curl 127.0.0.1:8080/health/live`, then `curl -H "Authorization: Bearer <key>" 127.0.0.1:8080/health/ready`.
 
-The volume holds everything: `tasks.yaml`, `api_key`, `decider.db`, `models/` and `hf-cache/`. Backing it up is up to you.
+The volume holds everything: `tasks.yaml`, `api_key`, `decider.db`, `models/` and `hf-cache/`. Backing it up is your responsibility.
 
 ### Base checkpoint and offline hosts
 
