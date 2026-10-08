@@ -18,7 +18,7 @@ A build-ready spec for Phase 0 (`decider-eval`) and Phase 1 (the single-containe
 - Skills: `/grilling` and `/domain-modeling` for grilling tickets (resolve terms into `CONTEXT.md` as they settle; ADRs only when hard to reverse, surprising, and a real trade-off). `/prototype` for prototype tickets.
 - `docs/design.md` has a canonical copy at `~/.gstack/projects/decider-ai/rharvey-main-design-20261008-040445.md`. Keep both in sync when a resolution edits the design.
 - Standing rules: no automatic retrain or activation, ever (decision 83b5e76c). decider-ai never calls Gemini. No message text in logs. Deferred under decision 18271c16 (supersedes 6ef66611): web UI, Postgres, a trainer service, GPU, CLI, AGENTS.md, multi-tenancy, ONNX.
-- Laya fine-tuning project: https://github.com/tehtommeh/laya-finetuning. It has no licence, so its code is not reusable until [laya-finetuning licence](0020-laya-finetuning-licence.md) resolves.
+- Laya: `LayaBackend` is built fresh on the Apache-2.0 `laya` SDK; https://github.com/tehtommeh/laya-finetuning (no licence) is reference reading only, never copied.
 - Planning only. Write no application code on this map.
 - The tracker is local markdown. See `docs/agents/issue-tracker.md`.
 
@@ -27,6 +27,7 @@ A build-ready spec for Phase 0 (`decider-eval`) and Phase 1 (the single-containe
 - The n8n node stays in the Phase 1 launch, per `docs/design.md`. Its planning happens outside this map. Reviewer concern R3-13 stays as recorded.
 - [Decider interface](../docs/architecture.md) (2026-10-08, design-it-twice round, no ticket): 8 methods with ports and adapters. `confirm` merges feedback and import, `forget` reports facts without deciding a policy, errors are a `code` plus fields, and the `Runner`/`Events` ports have two adapters each.
 - [Rethink the Pilot wedge](0016-rethink-the-pilot-wedge.md) — Pilot dropped as the case; generic routing, no named user; gate is cost-benefit on public data (LLM cheaper, faster and better at 250 labels on every dataset ⇒ re-scope); full Phase 1 in parallel tracks. Design approved.
+- [laya-finetuning licence](0020-laya-finetuning-licence.md) — build `LayaBackend` fresh from the Apache-2.0 `laya` SDK; laya-finetuning is inspiration only, no code copied.
 - [Re-verify reviewer fixes R3-1..R3-5](0002-re-verify-reviewer-fixes.md) — R3-1, R3-3, R3-4, R3-5 resolved; R3-2 partial (no comparison target for a first model), carried by First-model verdict.
 - [Public benchmark datasets](0015-public-benchmark-datasets.md) — MASSIVE 1.1 `de-DE` (scenario level, CC BY 4.0) + CLINC150 `oos_plus` (domain level, CC BY 3.0); Banking77 optional; Tobi-Bueck rejected (NC). Baselines: majority, TF-IDF+LR, zero-shot (d), fine-tune (c) at 50/100/250 × 5 seeds. `decider-eval` must accept any named optional prediction systems.
 - [Laya checkpoint facts](0003-laya-checkpoint-facts.md) — `convaiinnovations/laya-multilingual` @ `1720e3e`, Apache-2.0, 321.9M params, full fine-tune, ~678 MB per version, 1,024-token input; CPU fp32 fine-tune 11.8 min at 50 examples (measured), ~1 h at 250; ~1.6–1.8 GB RAM per loaded checkpoint, 8.5 GB training peak; zero-shot likely below majority.

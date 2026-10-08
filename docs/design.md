@@ -65,7 +65,7 @@ Two tracks built at the same time. The gate decides the launch headline and whet
 
 ### Track 1 — Eval and model (Phase 0)
 
-1. `LayaBackend` (reusing https://github.com/tehtommeh/laya-finetuning) and `decider-eval`.
+1. `LayaBackend` (built fresh on the Apache-2.0 `laya` SDK; https://github.com/tehtommeh/laya-finetuning is reference reading only) and `decider-eval`.
 2. `decider-eval` reads labelled JSONL in the decider-ai record format with any number of named, optional external prediction systems (e.g. `majority`, `tfidf_lr`, `llm`). (c) is the fine-tune over 5 seeds via `Backend`; (d) is zero-shot via `Backend`.
 3. Per dataset: the official test partition is the blind test set (`label_mode: blind`); `group_id` = `external_id` where there are no threads. Learning curve for (c) at 50 / 100 / 250 / all training labels.
 4. Report per system: macro-F1 with paired-bootstrap CI on the difference vs (c) (2,000 resamples, seeds averaged inside each resample); p95 latency per decision; cost per 1,000 decisions. LLM: provider list price at run date. Local: inference CPU-hours on a stated reference machine plus training cost, with one retrain at 250 labels amortised over a reference volume of 10,000 decisions per month for 3 months (30,000 decisions); training CPU-hours are also reported as their own line so readers can rescale to their volume. Aggregate numbers only.
@@ -134,7 +134,7 @@ Tracked as tickets on the engineering map (`issues/0001-map-decider-ai-engineeri
 
 ## Dependencies
 
-- Laya fine-tuning project (training/eval code reuse).
+- Apache-2.0 `laya` SDK and official notebook (`LayaBackend` built fresh; tehtommeh/laya-finetuning is reference reading only, no licence).
 - LLM API access for the offline baseline on public data.
 - Public datasets pinned in `docs/research/public-benchmark-datasets.md`.
 
