@@ -32,7 +32,10 @@ build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["laya: tests that need the real Laya model (slow, excluded in CI)"]
+markers = [
+    "laya: tests that need the real Laya model (slow, excluded in CI)",
+    "release: Phase 1 release test against a running container (skipped unless DECIDER_API_KEY is set)",
+]
 
 # CPU-only torch on Linux (no CUDA wheels).
 [[tool.uv.index]]

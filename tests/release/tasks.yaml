@@ -1,0 +1,49 @@
+# Phase 1 release test tasks (T2.8): the 18 MASSIVE 1.1 scenario labels.
+# Question and descriptions copied from bench/tasks/massive_de_scenario.yaml.
+tasks:
+  - name: massive_zs
+    question: "Worum geht es in dieser Anfrage an einen Sprachassistenten?"
+    labels:
+      alarm: "Wecker stellen, abfragen oder löschen"
+      audio: "Lautstärke ändern oder stummschalten"
+      calendar: "Termine und Erinnerungen anlegen, abfragen oder löschen"
+      cooking: "Rezepte und Kochfragen"
+      datetime: "Uhrzeit, Datum oder Zeitzonen abfragen"
+      email: "E-Mails lesen oder senden, Kontakte verwalten"
+      general: "Smalltalk, Witze, Begrüßungen, kein klarer Auftrag"
+      iot: "Smart-Home-Geräte steuern (Licht, Steckdosen, Staubsauger)"
+      lists: "Listen anlegen, ergänzen, abfragen oder löschen"
+      music: "Musikgeschmack, laufender Titel, Musikeinstellungen"
+      news: "Nachrichten abfragen"
+      play: "Musik, Radio, Podcasts, Hörbücher oder Spiele starten"
+      qa: "Wissensfragen, Definitionen, Rechnen, Währungen, Aktienkurse"
+      recommendation: "Empfehlungen für Veranstaltungen, Orte oder Filme"
+      social: "Soziale Medien, Beschwerden an Firmen"
+      takeaway: "Essen bestellen oder Bestellstatus abfragen"
+      transport: "Tickets, Taxi, Verkehrslage, Fahrpläne"
+      weather: "Wetter abfragen"
+    max_input_tokens: 512
+    zero_shot: true
+  - name: massive
+    question: "Worum geht es in dieser Anfrage an einen Sprachassistenten?"
+    labels:
+      alarm: "Wecker stellen, abfragen oder löschen"
+      audio: "Lautstärke ändern oder stummschalten"
+      calendar: "Termine und Erinnerungen anlegen, abfragen oder löschen"
+      cooking: "Rezepte und Kochfragen"
+      datetime: "Uhrzeit, Datum oder Zeitzonen abfragen"
+      email: "E-Mails lesen oder senden, Kontakte verwalten"
+      general: "Smalltalk, Witze, Begrüßungen, kein klarer Auftrag"
+      iot: "Smart-Home-Geräte steuern (Licht, Steckdosen, Staubsauger)"
+      lists: "Listen anlegen, ergänzen, abfragen oder löschen"
+      music: "Musikgeschmack, laufender Titel, Musikeinstellungen"
+      news: "Nachrichten abfragen"
+      play: "Musik, Radio, Podcasts, Hörbücher oder Spiele starten"
+      qa: "Wissensfragen, Definitionen, Rechnen, Währungen, Aktienkurse"
+      recommendation: "Empfehlungen für Veranstaltungen, Orte oder Filme"
+      social: "Soziale Medien, Beschwerden an Firmen"
+      takeaway: "Essen bestellen oder Bestellstatus abfragen"
+      transport: "Tickets, Taxi, Verkehrslage, Fahrpläne"
+      weather: "Wetter abfragen"
+    max_input_tokens: 512
+    zero_shot: false
