@@ -180,6 +180,10 @@ Stop: CONVERGENCE
 
 > Pick one rule. For example: all blind labels go to the test set for as long as the gate is unresolved, including the branch-3 growth up to 400, and blind labels go to training only after the gate decision is recorded. Or define a fixed test-set target and say what branch 3 adds to it.
 
+**Re-verification (2026-10-08)**
+
+RESOLVED. Phase 0 step 5 now says: "Until the gate decision is recorded, every blind label goes to the test set (including the branch-3 growth toward 400). Training uses assisted labels from the live queue only. Blind labels may enter training only after the gate decision." This is the remedy's first option, word for word. It agrees with step 2 ("Blind labels form the test set; assisted labels may only enter training") and with gate branch 3 ("Re-run the gate each time the test set grows by 100 mails. At 400 test mails, decide on the point estimate"). No leftover contradiction found.
+
 ### R3-2 — completeness (blocking)
 
 **Problem**
@@ -189,6 +193,10 @@ Stop: CONVERGENCE
 **Remedy**
 
 > Define first-model activation. Say whether the first trained candidate auto-activates when no active model exists, what it is compared against (e.g. the majority-class baseline, or an absolute minimum macro-F1), and whether an `unverified` first model needs manual activation before the 503 ends. Make the cold-start wording match.
+
+**Re-verification (2026-10-08)**
+
+PARTIAL. The activation question is settled. Cold start says: "First-model rule: a trained candidate never activates itself. The 503 ends only when the user explicitly calls `/v1/models/{version}/activate`. The candidate's report compares it against the majority-class baseline so that choice is informed." Retrain and activation adds: "The active model never changes until the user calls `activate`." The fix leaves one gap, though. The verdict rule computes "a paired bootstrap of macro-F1 (candidate − active) on the frozen split". With zero-shot disabled and nothing activated yet, there is no active model. If the split already exists, for example after a ≥150-example `POST /v1/examples:batch` import of the Phase 0 export, the first job's `recommended`/`not_recommended` verdict is undefined. The cold-start paragraph names the majority-class baseline as the comparison, but the verdict rule never uses it, and no threshold is given. The doc also never says whether `model_version: base` counts as "active" when zero-shot is enabled. Separately, `/health/ready`'s `trained` state is ambiguous: it could mean a trained candidate exists or that a trained model is active.
 
 ### R3-3 — feasibility (blocking)
 
@@ -200,6 +208,10 @@ Stop: CONVERGENCE
 
 > State the split size (a fixed count such as 100, or a fraction with a floor). State the total confirmed examples needed before freezing so that enough training data remains (e.g. split of 100 plus ≥50 for training). Define 'test-eligible', and state that split examples never enter training.
 
+**Re-verification (2026-10-08)**
+
+RESOLVED. Retrain and activation now says: "The test split is a fixed 100 examples, group-aware, frozen once ≥150 confirmed examples exist (leaving ≥50 for training) with ≥10 per label in the split. Any confirmed example is test-eligible. Split examples never enter training." This states the size, the freeze threshold that leaves training data, the definition of test-eligible, and the exclusion, which covers every point in the remedy. It agrees with "Minimum 50 confirmed examples per task before retrain is allowed" and with the Success Criteria's 150 boundary. Remaining edge cases (a group-aware draw that cannot hit exactly 100, rare labels that never reach 10) are already covered by R3-8 and are not blocking.
+
 ### R3-4 — consistency (blocking)
 
 **Problem**
@@ -210,6 +222,10 @@ Stop: CONVERGENCE
 
 > Rewrite the release test so it covers both cold-start modes (base decision when zero-shot is enabled, 503 MODEL_NOT_TRAINED when it is disabled) and the `unverified` candidate state with manual activation.
 
+**Re-verification (2026-10-08)**
+
+RESOLVED. The Success Criteria release test now reads: "Cold start: with zero-shot enabled, a decision returns `model_version: base`; with it disabled, `503 MODEL_NOT_TRAINED`." and "Below 150 examples: import labels, send feedback, run a retrain job and poll it; the candidate is `unverified`; activate it manually; decisions now serve it." It also says: "At ≥150 examples: retrain; the job reports `recommended` or `not_recommended`; the active model is unchanged until an explicit `activate`." The stale 'base model' and 'rejected or published' wording is gone. Two minor notes. Cold start makes zero-shot an image-wide ship decision, so a single release can exercise only one of the two cold-start modes unless zero-shot becomes a switch (see R3-7). In the ≥150 step an active model exists only because the previous step activated one, which is why the R3-2 gap does not show up here.
+
 ### R3-5 — completeness (blocking)
 
 **Problem**
@@ -219,6 +235,10 @@ Stop: CONVERGENCE
 **Remedy**
 
 > Size the consent request to the uncapped plan (e.g. consent to blind-label historical and incoming forwarded mail until the eval gate is decided, up to an upper bound covering 400 rule-unmatched mails at the measured rule-match share), and update the Assignment wording to match.
+
+**Re-verification (2026-10-08)**
+
+(Pilot detail removed)
 
 ### R3-6 — clarity (minor)
 
