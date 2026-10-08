@@ -1,0 +1,24 @@
+# Sample: decider-ai next to a client on one Docker network (issues/0010).
+# The curl service stands in for n8n: anything on the `decider` network reaches
+# http://decider-ai:8080. Replace OWNER and use a pinned release tag, never `latest`.
+services:
+  decider-ai:
+    image: ${DECIDER_IMAGE:-ghcr.io/OWNER/decider-ai:v0.1.0}
+    ports:
+      - "127.0.0.1:8080:8080"   # host loopback only
+    volumes:
+      - decider-data:/data     # holds tasks.yaml, api_key, decider.db, models/, hf-cache/
+    networks: [decider]
+
+  curl:
+    image: curlimages/curl:8.11.1
+    depends_on: [decider-ai]
+    command: ["-fsS", "--retry", "60", "--retry-delay", "2", "--retry-all-errors",
+              "http://decider-ai:8080/health/live"]
+    networks: [decider]
+
+volumes:
+  decider-data:
+
+networks:
+  decider:

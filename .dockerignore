@@ -1,0 +1,7 @@
+.git
+.venv
+.claude
+.gstack
+data
+predictions
+**/__pycache__
