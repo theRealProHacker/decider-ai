@@ -100,7 +100,7 @@ Rejected in the design-it-twice round: a command bus (`handle(Command)`, adds te
 Interface:
 - `split(examples, size, min_per_label, prefer_blind=True) -> Split | NotEnough(blocking_labels)`: group-aware.
 - `compare(gold, a, b_by_seed, groups, metric="macro_f1", resamples=2000) -> Comparison(delta, ci_low, ci_high, n)`: paired bootstrap on the difference; it averages seeds inside each resample.
-- `gate(per_dataset: list[GateInput]) -> Rescope | Launch`: the Phase 0 cost-benefit rule; `GateInput` holds the LLM-vs-(c) macro-F1 comparison at 250 labels plus both systems' cost per 1,000 decisions and p95 latency. `Rescope` only if the LLM is cheaper, faster and better (CI above zero) on every dataset.
+- `gate(per_dataset: list[GateInput]) -> ReScope | Launch`: the Phase 0 cost-benefit rule; `GateInput` holds the LLM-vs-(c) macro-F1 comparison at 250 labels plus both systems' cost per 1,000 decisions and p95 latency. `ReScope` only if the LLM is cheaper, faster and better (CI above zero) on every dataset.
 - `recommend(cmp, split_frozen) -> Recommended | NotRecommended | Unverified`: advisory only.
 
 In-process, no I/O. Two callers, `Decider` and `decider-eval`, so the rules that decide both the tutorial headline and the retrain recommendation exist exactly once. Tests feed literal arrays.
