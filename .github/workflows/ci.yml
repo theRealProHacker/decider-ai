@@ -50,9 +50,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"  # GHCR needs lowercase
       - uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/amd64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/decider-ai:${{ github.ref_name }}
+          tags: ghcr.io/${{ env.OWNER }}/decider-ai:${{ github.ref_name }}
