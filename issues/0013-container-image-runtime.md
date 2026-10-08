@@ -11,3 +11,7 @@ blocked_by: [3, 12]
 ## Question
 
 How is the single container built and run: base image, CPU-only PyTorch, whether the base checkpoint is bundled or fetched, Python dependency tooling, volume layout (`tasks.yaml`, SQLite, checkpoints, API key), process model (uvicorn workers vs one process given the in-process job runner), and arm64 support?
+
+## Notes (2026-10-08)
+
+From [Open-source licence](0011-open-source-licence.md): the image does not bundle the base checkpoint; it is downloaded at first start from a pinned revision. Decide the download mechanism, checksum check, behaviour when offline, and a pre-download path for air-gapped hosts.
