@@ -3,7 +3,7 @@
 Lives outside src/decider on purpose: the product never calls an LLM.
 
     uv run --group bench python bench/llm_baseline.py \
-        --records data/massive/test.jsonl --tasks bench/tasks/massive_de_scenario.yaml \
+        --records data/massive_de_scenario/records.jsonl --tasks bench/tasks/massive_de_scenario.yaml \
         --dataset massive_de_scenario --out predictions/ --limit 20
 
 Reads GEMINI_API_KEY. Resumes: external_ids already in the output file are skipped.
