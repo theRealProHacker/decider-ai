@@ -100,14 +100,16 @@ def test_train_learns_training_labels(backend, task, tmp_path):
     assert len(examples) == 54
 
     seen = []
+    epochs_seen = []
     start = time.perf_counter()
     from decider.backend import BASE
 
-    ref = backend.train(BASE, task, examples, seed=0, out_dir=tmp_path / "v1", progress=lambda p, **_: seen.append(p))
+    ref = backend.train(BASE, task, examples, seed=0, out_dir=tmp_path / "v1", progress=lambda p, **kw: (seen.append(p), epochs_seen.append(kw)))
     took = time.perf_counter() - start
     print(f"\ntrain {len(examples)} examples, 1 epoch: {took:.1f}s, peak RSS {_peak_rss_gb():.2f} GB")
 
     assert seen[0] == 0.0 and seen[-1] == 1.0 and seen == sorted(seen)
+    assert {"epoch": 1, "epochs": 1} in epochs_seen
     assert (ref.path / "model.safetensors").exists()
     assert not (ref.path / "checkpoint_latest").exists()
 
