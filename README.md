@@ -4,6 +4,17 @@ decider-ai is a self-hosted container that classifies short texts into the label
 
 Status: under construction.
 
+## Results
+
+Fine-tuned on 250 labels, decider-ai costs about €0.003–0.004 per 1,000 decisions on a CPU and answers faster than Gemini 3.5 Flash-Lite (p95 345–626 ms vs 695–805 ms). It is less accurate: zero-shot Gemini scores 10–15 macro-F1 points higher.
+
+| Dataset | decider-ai, 250 labels | Gemini 3.5 Flash-Lite, zero-shot | TF-IDF + LR, 250 labels |
+|---|---|---|---|
+| MASSIVE 1.1 de-DE, 18 scenarios | F1 0.717 · €0.0043 / 1,000 · p95 626 ms | F1 0.864 · €0.0808 / 1,000 · p95 805 ms | F1 0.619 |
+| CLINC150, 10 domains + out-of-scope | F1 0.734 · €0.0027 / 1,000 · p95 345 ms | F1 0.836 · €0.0766 / 1,000 · p95 695 ms | F1 0.588 |
+
+Measured on one laptop CPU (Intel Core Ultra 7 258V), priced at €0.0256 per CPU-hour, mean of 5 seeds, on a seeded 1,000-record sample of each official test set. Full report, method and confidence intervals: [reports/gate-20261008-0543/report.md](reports/gate-20261008-0543/report.md).
+
 ## Host
 
 - x86-64 with AVX2, 4 or more vCPUs, 16 GB RAM. Training peaks at about 8.5 GB of memory.

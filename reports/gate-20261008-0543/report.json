@@ -1,0 +1,470 @@
+{
+  "schema_version": 1,
+  "run": {
+    "date": "2026-10-09",
+    "git_sha": "e00147dde0e4316f1fa573c39990cda730d6f0e5",
+    "machine": "Intel Core Ultra 7 258V, 8 threads, 30 GB RAM, Linux 6.17 (laptop)",
+    "backend": {
+      "name": "laya",
+      "laya_revision": "1720e3e3357cfe1e281542e223f8273b0890ca34",
+      "sdk_version": "0.4.0"
+    },
+    "cpu_price_per_hour": 0.0256,
+    "price_date": "2026-10-08",
+    "currency": "EUR",
+    "fx": {
+      "rate": 0.86,
+      "date": "2026-10-08"
+    },
+    "budgets": [
+      250
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "resamples": 2000,
+    "amortise_decisions": 30000,
+    "ci": "nominal 95% paired bootstrap (2000 resamples, seeds averaged inside each resample), unadjusted; one look per dataset",
+    "git_sha_at_start": "d60874e",
+    "notes": [
+      "machine corrected after the run: the CPU-name lookup in the launch command failed under a German locale",
+      "git_sha is HEAD when the report was written; the code ran from d60874e (later commits changed only a progress-callback signature and tests)",
+      "the laptop suspended 18:00-18:21 and 18:32-00:03 on 2026-10-08 during the CLINC runs; suspended time can only inflate Laya training time and latency, so it biases against the fine-tune"
+    ]
+  },
+  "datasets": [
+    {
+      "name": "massive_de_scenario",
+      "task": "massive_de_scenario",
+      "labels": 18,
+      "n_test": 1000,
+      "records_sha256": "2c2041a8d3417a5499a685377155685d2274a1b91290f785c6ca892ded8dee08",
+      "source": {
+        "dataset": "MASSIVE 1.1, locale de-DE, scenario level",
+        "authors": "FitzGerald et al., Amazon (2022); derived from SLURP",
+        "licence": "CC BY 4.0",
+        "link": "https://github.com/alexa/massive",
+        "pin": "amazon-massive-dataset-1.1.tar.gz (alexa/massive @ f966f21846043aabef9b0f974fa7970027f43738)",
+        "sha256": {
+          "amazon-massive-dataset-1.1.tar.gz": "4cba5faa11c71437928e17cb1b9b3d8b8e727e7ea363a3a9a8045e19c0491577",
+          "1.1/data/de-DE.jsonl": "5e09cc550b38d37faf002e0ff42103acd330906e23032689e8f071e1cf3ff621"
+        }
+      },
+      "systems": [
+        {
+          "name": "finetune",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 250,
+              "p95_latency_ms": 626.284,
+              "inference_cost_per_1k": 0.0030174085585749294,
+              "retrain_cost_per_1k": 0.0012541506217550694,
+              "training_cpu_hours": 1.469707759869222,
+              "cost_per_1k": 0.004271559180329999,
+              "macro_f1": 0.7168686449045099,
+              "macro_f1_by_seed": [
+                0.7457854607886668,
+                0.715967612924501,
+                0.7175188715055463,
+                0.7046649989477236,
+                0.7004062803561119
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": []
+        },
+        {
+          "name": "zero_shot",
+          "kind": "local",
+          "zero_shot": true,
+          "rows": [
+            {
+              "budget": 0,
+              "p95_latency_ms": 513.403,
+              "inference_cost_per_1k": 0.0035157141140620745,
+              "retrain_cost_per_1k": 0.0,
+              "training_cpu_hours": 0.0,
+              "cost_per_1k": 0.0035157141140620745,
+              "macro_f1": 0.5701685094174942,
+              "macro_f1_by_seed": [
+                0.5701685094174942
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": -0.14670013548701566,
+              "ci_low": -0.17610712418867625,
+              "ci_high": -0.1198485274637906,
+              "n": 1000
+            }
+          ]
+        },
+        {
+          "name": "gemini-3.5-flash-lite",
+          "kind": "api",
+          "zero_shot": true,
+          "rows": [
+            {
+              "budget": 0,
+              "p95_latency_ms": 804.5,
+              "cost_per_1k": 0.08076819,
+              "cost_per_1k_low": 0.056537733,
+              "cost_per_1k_high": 0.10499864700000001,
+              "mean_input_tokens": 304.28,
+              "mean_output_tokens": 1.053,
+              "training_cpu_hours": 0.0,
+              "macro_f1": 0.8644489761251402,
+              "macro_f1_by_seed": [
+                0.8644489761251402
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": 0.1475803312206303,
+              "ci_low": 0.12307802012442692,
+              "ci_high": 0.1724699142115339,
+              "n": 1000
+            }
+          ],
+          "api": {
+            "model": "gemini-3.5-flash-lite",
+            "settings": {
+              "temperature": 0.0,
+              "thinking_level": "MINIMAL",
+              "output": "enum restricted to the task's labels",
+              "shots": 0
+            },
+            "price_date": "2026-10-08",
+            "run_date": "2026-10-08",
+            "prompt_template_sha256": "4887d2d570a0f7a770f27d12c1e05410e56e041a92113864c4a0be1896058c66",
+            "prices": {
+              "price_input_per_million_usd": 0.3,
+              "price_output_per_million_usd": 2.5
+            }
+          }
+        },
+        {
+          "name": "majority",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 250,
+              "p95_latency_ms": 0.001,
+              "inference_cost_per_1k": 3.989816888888889e-08,
+              "retrain_cost_per_1k": 2.3703703703703706e-11,
+              "training_cpu_hours": 2.777777777777778e-08,
+              "cost_per_1k": 3.992187259259259e-08,
+              "macro_f1": 0.013473930872876391,
+              "macro_f1_by_seed": [
+                0.013473930872876391,
+                0.013473930872876391,
+                0.013473930872876391,
+                0.013473930872876391,
+                0.013473930872876391
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": -0.7033947140316335,
+              "ci_low": -0.7256252928912297,
+              "ci_high": -0.6763347389286007,
+              "n": 1000
+            }
+          ]
+        },
+        {
+          "name": "tfidf_lr",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 250,
+              "p95_latency_ms": 1.406,
+              "inference_cost_per_1k": 8.934178702222222e-06,
+              "retrain_cost_per_1k": 3.704177777777777e-07,
+              "training_cpu_hours": 0.0004340833333333333,
+              "cost_per_1k": 9.30459648e-06,
+              "macro_f1": 0.6194842748511901,
+              "macro_f1_by_seed": [
+                0.6322151412872303,
+                0.6057574408212096,
+                0.633224292065803,
+                0.5816892820967432,
+                0.6445352179849642
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": -0.09738437005331979,
+              "ci_low": -0.12250262077099638,
+              "ci_high": -0.07414729982173573,
+              "n": 1000
+            }
+          ]
+        }
+      ],
+      "headline": {
+        "budget": 250,
+        "llm_system": "gemini-3.5-flash-lite",
+        "finetune_f1": 0.7168686449045099,
+        "llm_f1": 0.8644489761251402,
+        "delta": 0.1475803312206303,
+        "ci_low": 0.12307802012442692,
+        "ci_high": 0.1724699142115339,
+        "finetune_cost_per_1k": 0.004271559180329999,
+        "llm_cost_per_1k": 0.08076819,
+        "finetune_p95_ms": 626.284,
+        "llm_p95_ms": 804.5
+      }
+    },
+    {
+      "name": "clinc_domain",
+      "task": "clinc_domain",
+      "labels": 11,
+      "n_test": 1000,
+      "records_sha256": "78d2ad8030f85e9cf0e383131ce8fe584af4c00735843613ce1e2dec822d428a",
+      "source": {
+        "dataset": "CLINC150 oos_plus, domain level + out_of_scope",
+        "authors": "Larson et al., EMNLP 2019",
+        "licence": "CC BY 3.0",
+        "link": "https://github.com/clinc/oos-eval",
+        "pin": "clinc/oos-eval @ 828f8093932c8fe6ca7936c3d2e52903b1c523de",
+        "sha256": {
+          "data_oos_plus.json": "bfcca9ae515623541dc1983c94c4ed7cae9d26b42ae47d74b972e51bb6f7a21f",
+          "domains.json": "b947b579d3b8e74b06f93b01083d8efaff2888b43a3e362533bd88a6e1211b3a"
+        }
+      },
+      "systems": [
+        {
+          "name": "finetune",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 250,
+              "p95_latency_ms": 344.594,
+              "inference_cost_per_1k": 0.0018887091169374685,
+              "retrain_cost_per_1k": 0.0008239062131929598,
+              "training_cpu_hours": 0.9655150935854997,
+              "cost_per_1k": 0.0027126153301304285,
+              "macro_f1": 0.7336199560079661,
+              "macro_f1_by_seed": [
+                0.7332032219709922,
+                0.7545734788889841,
+                0.7366204839446926,
+                0.698341120484881,
+                0.7453614747502807
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": []
+        },
+        {
+          "name": "zero_shot",
+          "kind": "local",
+          "zero_shot": true,
+          "rows": [
+            {
+              "budget": 0,
+              "p95_latency_ms": 264.097,
+              "inference_cost_per_1k": 0.001730882362075771,
+              "retrain_cost_per_1k": 0.0,
+              "training_cpu_hours": 0.0,
+              "cost_per_1k": 0.001730882362075771,
+              "macro_f1": 0.45581873724902233,
+              "macro_f1_by_seed": [
+                0.45581873724902233
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": -0.2778012187589438,
+              "ci_low": -0.3109889404500999,
+              "ci_high": -0.24706668748165822,
+              "n": 1000
+            }
+          ]
+        },
+        {
+          "name": "gemini-3.5-flash-lite",
+          "kind": "api",
+          "zero_shot": true,
+          "rows": [
+            {
+              "budget": 0,
+              "p95_latency_ms": 694.5,
+              "cost_per_1k": 0.076594266,
+              "cost_per_1k_low": 0.05361598619999999,
+              "cost_per_1k_high": 0.0995725458,
+              "mean_input_tokens": 276.152,
+              "mean_output_tokens": 2.487,
+              "training_cpu_hours": 0.0,
+              "macro_f1": 0.8358847918274911,
+              "macro_f1_by_seed": [
+                0.8358847918274911
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": 0.10226483581952495,
+              "ci_low": 0.0805286540667769,
+              "ci_high": 0.12607114158057964,
+              "n": 1000
+            }
+          ],
+          "api": {
+            "model": "gemini-3.5-flash-lite",
+            "settings": {
+              "temperature": 0.0,
+              "thinking_level": "MINIMAL",
+              "output": "enum restricted to the task's labels",
+              "shots": 0
+            },
+            "price_date": "2026-10-08",
+            "run_date": "2026-10-08",
+            "prompt_template_sha256": "4887d2d570a0f7a770f27d12c1e05410e56e041a92113864c4a0be1896058c66",
+            "prices": {
+              "price_input_per_million_usd": 0.3,
+              "price_output_per_million_usd": 2.5
+            }
+          }
+        },
+        {
+          "name": "majority",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 250,
+              "p95_latency_ms": 0.0,
+              "inference_cost_per_1k": 1.677368888888889e-09,
+              "retrain_cost_per_1k": 2.3703703703703706e-11,
+              "training_cpu_hours": 2.777777777777778e-08,
+              "cost_per_1k": 1.7010725925925927e-09,
+              "macro_f1": 0.0136636121147167,
+              "macro_f1_by_seed": [
+                0.01205330617095323,
+                0.015012510425354463,
+                0.012211668928086838,
+                0.012211668928086838,
+                0.01682890612110213
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": -0.7199563438932495,
+              "ci_low": -0.7385468685501207,
+              "ci_high": -0.6994427829732405,
+              "n": 1000
+            }
+          ]
+        },
+        {
+          "name": "tfidf_lr",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 250,
+              "p95_latency_ms": 1.48,
+              "inference_cost_per_1k": 9.40796600888889e-06,
+              "retrain_cost_per_1k": 3.479514074074074e-07,
+              "training_cpu_hours": 0.00040775555555555554,
+              "cost_per_1k": 9.755917416296298e-06,
+              "macro_f1": 0.5880849459863677,
+              "macro_f1_by_seed": [
+                0.5585896834217735,
+                0.6023775429680395,
+                0.5885560233920711,
+                0.6231418039375667,
+                0.5677596762123877
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": -0.1455350100215984,
+              "ci_low": -0.16523391370849527,
+              "ci_high": -0.12576310576335203,
+              "n": 1000
+            }
+          ]
+        }
+      ],
+      "headline": {
+        "budget": 250,
+        "llm_system": "gemini-3.5-flash-lite",
+        "finetune_f1": 0.7336199560079661,
+        "llm_f1": 0.8358847918274911,
+        "delta": 0.10226483581952495,
+        "ci_low": 0.0805286540667769,
+        "ci_high": 0.12607114158057964,
+        "finetune_cost_per_1k": 0.0027126153301304285,
+        "llm_cost_per_1k": 0.076594266,
+        "finetune_p95_ms": 344.594,
+        "llm_p95_ms": 694.5
+      }
+    }
+  ],
+  "gate": {
+    "budget": 250,
+    "outcome": "Launch",
+    "reason": null,
+    "per_dataset": [
+      {
+        "dataset": "massive_de_scenario",
+        "llm_system": "gemini-3.5-flash-lite",
+        "llm_cheaper": false,
+        "llm_faster": false,
+        "llm_better": true,
+        "llm_wins": false
+      },
+      {
+        "dataset": "clinc_domain",
+        "llm_system": "gemini-3.5-flash-lite",
+        "llm_cheaper": false,
+        "llm_faster": false,
+        "llm_better": true,
+        "llm_wins": false
+      }
+    ]
+  },
+  "zero_shot_rule": {
+    "baseline": "tfidf_lr",
+    "budget": 50,
+    "outcome": null,
+    "per_dataset": []
+  }
+}
