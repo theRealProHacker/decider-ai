@@ -2,7 +2,8 @@
 
     python bench/convert.py [--data-dir data] [--budgets 50,100,250] [--seeds 0-4]
 
-Writes, per dataset (massive_de_scenario, clinc_domain):
+Writes, per dataset (massive_de_scenario, clinc_domain, and massive_en_scenario when
+data/raw/massive_en-US.jsonl exists):
     data/<dataset>/records.jsonl          official train (assisted) + test (blind)
     data/<dataset>/subsets/<budget>-<seed>.json   list of train external_ids
 Prints counts only, never message text.
@@ -26,13 +27,13 @@ def record(external_id: str, text: str, label: str, partition: str) -> dict:
     }
 
 
-def convert_massive(path: Path) -> list[dict]:
+def convert_massive(path: Path, locale: str = "de-DE") -> list[dict]:
     out = []
     with open(path, encoding="utf-8") as f:
         for line in f:
             row = json.loads(line)
             if row["partition"] in ("train", "test"):
-                out.append(record(f"massive-de-DE-{row['id']}", row["utt"], row["scenario"], row["partition"]))
+                out.append(record(f"massive-{locale}-{row['id']}", row["utt"], row["scenario"], row["partition"]))
     return out
 
 
@@ -102,6 +103,8 @@ def main(argv=None) -> None:
         "massive_de_scenario": convert_massive(raw / "massive_de-DE.jsonl"),
         "clinc_domain": convert_clinc(raw / "clinc_data_oos_plus.json", raw / "clinc_domains.json"),
     }
+    if (raw / "massive_en-US.jsonl").exists():
+        datasets["massive_en_scenario"] = convert_massive(raw / "massive_en-US.jsonl", "en-US")
     for name, records in datasets.items():
         write_dataset(records, args.data_dir / name, budgets, seeds)
         print(summary(name, records))

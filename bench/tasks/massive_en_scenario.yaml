@@ -1,0 +1,25 @@
+# MASSIVE 1.1 en-US, scenario level. English version of massive_de_scenario.yaml.
+tasks:
+  - name: massive_en_scenario
+    question: "What is this request to a voice assistant about?"
+    labels:
+      alarm: "setting, checking or deleting an alarm"
+      audio: "changing the volume or muting"
+      calendar: "creating, checking or deleting events and reminders"
+      cooking: "recipes and cooking questions"
+      datetime: "asking for the time, date or time zones"
+      email: "reading or sending emails, managing contacts"
+      general: "small talk, jokes, greetings, no clear task"
+      iot: "controlling smart home devices (lights, plugs, vacuum cleaner)"
+      lists: "creating, adding to, checking or deleting lists"
+      music: "music taste, the current track, music settings"
+      news: "asking for news"
+      play: "starting music, radio, podcasts, audiobooks or games"
+      qa: "factual questions, definitions, maths, currencies, stock prices"
+      recommendation: "recommendations for events, places or films"
+      social: "social media, complaints to companies"
+      takeaway: "ordering food or checking an order's status"
+      transport: "tickets, taxi, traffic, timetables"
+      weather: "asking for the weather"
+    max_input_tokens: 512
+    zero_shot: false
