@@ -7,7 +7,7 @@ Status: APPROVED
 Mode: Startup
 Supersedes: rharvey-unknown-design-20261008-015741.md
 
-(Pilot detail removed)
+Why this revision: Pilot's model call does more than pick one of a fixed set of labels, so a fixed-label decision endpoint would replace only part of it, and the Pilot privacy case ("no text leaves the server") does not hold. The founder dropped Pilot as the case study and kept the product.
 
 ## Problem Statement
 

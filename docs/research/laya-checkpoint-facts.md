@@ -49,7 +49,7 @@ There is no direct evidence either way.
   - Ordinal `score` questions have a **measured position bias** on this checkpoint: it "rarely picks the first-listed level", 0 of 290 in one run ([laya#131](https://github.com/NandhaKishorM/laya/issues/131)). This affects `urgency` 1–5 if it is encoded as `score`.
   - `noul` can under-report "true".
   - The checkpoint ships uncalibrated (temperature 1.0). laya-finetuning refits temperatures after every training run.
-(Pilot detail removed)
+- One anecdote, not evidence: a zero-shot call on a German tenancy mail picked the wrong one of three actions. (measured, n=1)
 
 **Verdict:** multilingual is the only candidate. Whether it is fit for German legal mail is exactly what the Phase 0 fine-tune arm (c) measures. No published source settles it.
 
@@ -154,7 +154,7 @@ Repo [tehtommeh/laya-finetuning @ `2c39f675`](https://github.com/tehtommeh/laya-
 - **Software:** Python 3.12, `torch 2.14.1+cpu`, `transformers 5.17.0`, `laya 0.3.6`, `safetensors 0.8.0`. These are the versions laya-finetuning pins, apart from torch.
 - **Weights:** `convaiinnovations/laya-multilingual @ 1720e3e3`, loaded offline.
 - **Training probe:** a scratch script that imports laya-finetuning `train/ckpt.py` and `train/data.py` at `2c39f675` and copies the `train.py` inner loop verbatim, except that it runs on the CPU device, in fp32, without GradScaler.
-(Pilot detail removed)
+- **Data:** 50 synthetic German tenancy-law mails, ~250 words each (mean sequence 456 tokens), with one 3-option `choice` question (a three-way action label).
 - **Run:** a full 4-epoch run; the checkpoint was saved and measured with `du`.
 - **Memory:** RSS via `psutil` and `ru_maxrss`.
 - **Inference:** `laya.Agent(..., device="cpu").predict`, 8 calls, first 2 discarded.
