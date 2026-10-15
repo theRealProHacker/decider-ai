@@ -1,6 +1,8 @@
+import io
 import json
 import logging
 
+import openpyxl
 import pytest
 from fastapi.testclient import TestClient
 
@@ -163,6 +165,61 @@ def test_batch_outcomes_in_order(client):
 
 def test_batch_needs_ndjson(client):
     err(client.post("/v1/examples:batch", json=fb()), 422, "VALIDATION_FAILED")
+
+
+CSV = {"Content-Type": "text/csv"}
+XLSX = {"Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
+
+
+def xlsx(rows):
+    wb = openpyxl.Workbook()
+    for row in rows:
+        wb.active.append(row)
+    buf = io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue()
+
+
+def test_batch_csv(client):
+    sheet = "Nachricht;Team\nrefund please;billing\n\nbroken;other\nbuy more;sales\n"
+    r = client.post("/v1/examples:batch?task=nz&text_column=Nachricht&label_column=Team",
+                    content=sheet.encode("utf-8-sig"), headers=CSV)
+    assert r.status_code == 200, r.text
+    assert r.json() == {"outcomes": [
+        {"index": 0, "outcome": "added"},
+        {"index": 1, "outcome": "rejected", "code": "LABEL_NOT_IN_TASK"},
+        {"index": 2, "outcome": "added"},
+    ]}
+    # No ID column: the text is the ID, so the same sheet again updates instead of adding.
+    r = client.post("/v1/examples:batch?task=nz&text_column=Nachricht&label_column=Team",
+                    content=sheet, headers=CSV)
+    assert [o["outcome"] for o in r.json()["outcomes"]] == ["updated", "rejected", "updated"]
+    assert client.get("/health/ready").json()["tasks"]["nz"]["confirmed"] == 2
+
+
+def test_batch_xlsx(client):
+    body = xlsx([["external_id", "text", "label"], [7, "refund please", "billing"],
+                 [8, "help me", "support"], [None, None, None]])
+    r = client.post("/v1/examples:batch?task=nz", content=body, headers=XLSX)
+    assert r.status_code == 200, r.text
+    assert [o["outcome"] for o in r.json()["outcomes"]] == ["added", "added"]
+    client.delete("/v1/examples/7").raise_for_status()
+    assert client.get("/health/ready").json()["tasks"]["nz"]["confirmed"] == 1
+
+
+def test_batch_sheet_errors(client):
+    err(client.post("/v1/examples:batch", content="text,label\nx,billing\n", headers=CSV),
+        422, "VALIDATION_FAILED")
+    e = err(client.post("/v1/examples:batch?task=nz", content="msg,team\nx,billing\n",
+                        headers=CSV), 422, "VALIDATION_FAILED")
+    assert e["columns"] == ["msg", "team"]
+    err(client.post("/v1/examples:batch?task=nz", content=b"not a zip", headers=XLSX),
+        422, "VALIDATION_FAILED")
+    r = client.post("/v1/examples:batch?task=nope", content="text,label\nx,billing\n",
+                    headers=CSV)
+    assert r.json()["outcomes"] == [{"index": 0, "outcome": "rejected", "code": "TASK_NOT_FOUND"}]
+    r = client.post("/v1/examples:batch?task=nz", content="text,label\n,billing\n", headers=CSV)
+    assert r.json()["outcomes"] == [{"index": 0, "outcome": "rejected", "code": "VALIDATION_FAILED"}]
 
 
 # --- body cap ---------------------------------------------------------------------

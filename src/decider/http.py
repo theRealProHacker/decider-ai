@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import csv
 import dataclasses
+import hashlib
 import hmac
+import io
 import json
 import os
 from typing import Any, Literal
 
+import openpyxl
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -58,6 +62,16 @@ class FeedbackIn(BaseModel):
     request_id: str | None = None
     group_id: str | None = None
     label_mode: Literal["blind", "assisted"] = "assisted"
+
+
+class SheetIn(BaseModel):
+    """Query parameters for a CSV or xlsx import: which task, and which columns hold what."""
+
+    task: str
+    text_column: str = "text"
+    label_column: str = "label"
+    id_column: str = "external_id"
+    label_mode: Literal["blind", "assisted"] = "blind"
 
 
 class RetrainIn(BaseModel):
@@ -112,6 +126,51 @@ def _outcome(o) -> dict:
 
 def _example(fields: FeedbackIn) -> Example:
     return Example(**fields.model_dump())
+
+
+XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+
+def _sheet_rows(ctype: str, body: bytes) -> list[dict[str, str]]:
+    """Rows of a CSV or the first xlsx sheet as {header: cell text}; the first row is the header."""
+    if ctype == XLSX:
+        try:
+            sheet = openpyxl.load_workbook(io.BytesIO(body), read_only=True, data_only=True).active
+            grid = [["" if v is None else str(v) for v in row]
+                    for row in sheet.iter_rows(values_only=True)]
+        except Exception as exc:
+            raise ApiError("VALIDATION_FAILED", "not a readable xlsx file") from exc
+    else:
+        try:
+            text = body.decode("utf-8-sig")
+        except UnicodeDecodeError as exc:
+            raise ApiError("VALIDATION_FAILED", "CSV must be UTF-8") from exc
+        try:  # Excel exports use ";" in many locales
+            dialect = csv.Sniffer().sniff(text.split("\n", 1)[0], delimiters=",;\t")
+        except csv.Error:
+            dialect = csv.excel
+        grid = list(csv.reader(io.StringIO(text), dialect))
+    grid = [row for row in grid if any(cell.strip() for cell in row)]
+    if not grid:
+        return []
+    header = [h.strip() for h in grid[0]]
+    return [dict(zip(header, (c.strip() for c in row))) for row in grid[1:]]
+
+
+def _sheet_examples(rows: list[dict[str, str]], q: SheetIn) -> list[dict]:
+    columns = list(rows[0]) if rows else []
+    missing = [c for c in (q.text_column, q.label_column) if c not in columns]
+    if missing:
+        raise ApiError("VALIDATION_FAILED", f"missing column(s): {', '.join(missing)}",
+                       columns=columns)
+    out = []
+    for row in rows:
+        text = row.get(q.text_column, "")
+        # Without an ID column the text is the identity: re-importing the same sheet updates, not adds.
+        external_id = row.get(q.id_column) or "sha256:" + hashlib.sha256(text.encode()).hexdigest()[:16]
+        out.append({"task": q.task, "text": text or None, "label": row.get(q.label_column, ""),
+                    "external_id": external_id, "label_mode": q.label_mode})
+    return out
 
 
 def create_app(decider: Decider, api_key: str, max_body_bytes: int | None = None) -> FastAPI:
@@ -183,14 +242,24 @@ def create_app(decider: Decider, api_key: str, max_body_bytes: int | None = None
     @v1.post("/v1/examples:batch")
     async def batch(request: Request):
         ctype = request.headers.get("content-type", "").split(";")[0].strip()
-        if ctype != "application/x-ndjson":
-            raise ApiError("VALIDATION_FAILED", "Content-Type must be application/x-ndjson")
-        lines = [ln for ln in (await request.body()).splitlines() if ln.strip()]
-        examples: list[tuple[int, Example]] = []
-        outcomes: list[dict | None] = [None] * len(lines)
-        for i, line in enumerate(lines):
+        body = await request.body()
+        if ctype == "application/x-ndjson":
+            items = [ln for ln in body.splitlines() if ln.strip()]
+        elif ctype in ("text/csv", XLSX):
             try:
-                examples.append((i, _example(FeedbackIn.model_validate(json.loads(line)))))
+                q = SheetIn.model_validate(dict(request.query_params))
+            except ValidationError as exc:
+                raise ApiError("VALIDATION_FAILED", "CSV and xlsx imports need ?task=") from exc
+            items = _sheet_examples(_sheet_rows(ctype, body), q)
+        else:
+            raise ApiError("VALIDATION_FAILED",
+                           f"Content-Type must be application/x-ndjson, text/csv or {XLSX}")
+        examples: list[tuple[int, Example]] = []
+        outcomes: list[dict | None] = [None] * len(items)
+        for i, item in enumerate(items):
+            try:
+                fields = json.loads(item) if isinstance(item, bytes) else item
+                examples.append((i, _example(FeedbackIn.model_validate(fields))))
             except (ValueError, ValidationError):
                 outcomes[i] = {"index": i, "outcome": "rejected", "code": "VALIDATION_FAILED"}
         for (i, _), o in zip(examples, decider.confirm(e for _, e in examples)):
