@@ -12,8 +12,13 @@ RUN uv sync --locked --no-dev --no-install-project
 COPY src ./src
 RUN uv sync --locked --no-dev
 
+# The release passes its own image reference, so `guide` prints commands that pull this exact image.
+ARG DECIDER_IMAGE=decider-ai:dev
+ENV DECIDER_IMAGE=$DECIDER_IMAGE
+
 VOLUME /data
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=120s \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health/live', timeout=4)"
-CMD ["python", "-m", "decider"]
+ENTRYPOINT ["decider-ai"]
+CMD ["serve"]

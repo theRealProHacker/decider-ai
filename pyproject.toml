@@ -16,6 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
+decider-ai = "decider.cli:main"
 decider-eval = "decider.eval_cli:main"
 
 [dependency-groups]

@@ -28,13 +28,13 @@ Things to know:
 
 ## Run
 
-Images are published to GHCR under pinned version tags. Always use a version tag such as `v0.2.0`; never `latest`. Replace `OWNER` below with the GitHub owner of this repository.
+Images are published to GHCR under pinned version tags. Always use a version tag such as `v0.3.0`; never `latest`. Replace `OWNER` below with the GitHub owner of this repository.
 
 1. Put a `tasks.yaml` (see below) into a volume:
 
    ```sh
    docker volume create decider-data
-   docker run --rm -i -v decider-data:/data --entrypoint sh ghcr.io/OWNER/decider-ai:v0.2.0 \
+   docker run --rm -i -v decider-data:/data --entrypoint sh ghcr.io/OWNER/decider-ai:v0.3.0 \
      -c 'cat > /data/tasks.yaml' < tasks.yaml
    ```
 
@@ -42,7 +42,7 @@ Images are published to GHCR under pinned version tags. Always use a version tag
 
    ```sh
    docker run -d --name decider-ai -p 127.0.0.1:8080:8080 -v decider-data:/data \
-     ghcr.io/OWNER/decider-ai:v0.2.0
+     ghcr.io/OWNER/decider-ai:v0.3.0
    docker logs decider-ai   # the generated API key is printed once, on first start
    ```
 
@@ -52,9 +52,35 @@ Images are published to GHCR under pinned version tags. Always use a version tag
 
 The volume holds everything: `tasks.yaml`, `api_key`, `decider.db`, `models/` and `hf-cache/`. Backing it up is your responsibility.
 
-### Set it up with Claude
+### Set it up with an AI agent
 
-Copy [`skills/decider-setup`](skills/decider-setup) into `~/.claude/skills/`, then give Claude Code your spreadsheet: "set up decider-ai on `tickets.xlsx`". It writes `tasks.yaml`, starts the container, tests the untrained model on your rows, shows what it gets right and wrong, and fine-tunes and activates only when you say so.
+Give Claude Code (or any agent that can run Docker) your spreadsheet and this line:
+
+```
+Set up decider-ai with my data: run `docker run --rm ghcr.io/therealprohacker/decider-ai:v0.3.0 guide` and follow it.
+```
+
+It creates the task from your columns, starts the container, tests the untrained model on your rows, shows what it gets right and wrong, and trains and activates only when you say so. At the end you can type:
+
+```sh
+decider-ai "Do you have a free trial?"
+```
+
+### The `decider-ai` command
+
+The image's entrypoint is a small command. With no arguments it starts the service; inside a running container it talks to that service with the key from the volume:
+
+| Command | Does |
+|---|---|
+| `docker run --rm IMAGE guide` | Setup steps for an agent |
+| `docker run --rm -i -v decider-data:/data IMAGE init < FILE` | Write `tasks.yaml` from a sheet |
+| `docker exec -i decider-ai decider-ai check < FILE` | Score the serving model on a labelled sheet |
+| `docker exec -i decider-ai decider-ai import < FILE` | Add a sheet as training examples |
+| `docker exec decider-ai decider-ai train`, then `wait` | Train and follow the job |
+| `docker exec decider-ai decider-ai activate` | Serve the newest trained model |
+| `docker exec decider-ai decider-ai "text"` | The label for a text (`--scores` for all) |
+
+With `alias decider-ai='docker exec -i decider-ai decider-ai'` these become `decider-ai check < FILE`, `decider-ai "text"` and so on.
 
 ### Import a spreadsheet
 
@@ -76,7 +102,7 @@ The image does not contain the model. On first start it downloads `convaiinnovat
 For a host without internet access, fill the volume on a machine that has it, then move the volume over:
 
 ```sh
-docker run --rm -v decider-data:/data --entrypoint hf ghcr.io/OWNER/decider-ai:v0.2.0 \
+docker run --rm -v decider-data:/data --entrypoint hf ghcr.io/OWNER/decider-ai:v0.3.0 \
   download convaiinnovations/laya-multilingual \
   --revision 1720e3e3357cfe1e281542e223f8273b0890ca34 --cache-dir /data/hf-cache
 ```

@@ -2,23 +2,21 @@
 
 from __future__ import annotations
 
-import csv
 import dataclasses
-import hashlib
 import hmac
-import io
 import json
 import os
 from typing import Any, Literal
 
-import openpyxl
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from decider import sheets
 from decider.core import Decider, DeciderError, Example, Frozen
+from decider.sheets import XLSX
 
 DEFAULT_MAX_BODY_BYTES = 16 * 1024 * 1024
 
@@ -128,35 +126,6 @@ def _example(fields: FeedbackIn) -> Example:
     return Example(**fields.model_dump())
 
 
-XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-
-
-def _sheet_rows(ctype: str, body: bytes) -> list[dict[str, str]]:
-    """Rows of a CSV or the first xlsx sheet as {header: cell text}; the first row is the header."""
-    if ctype == XLSX:
-        try:
-            sheet = openpyxl.load_workbook(io.BytesIO(body), read_only=True, data_only=True).active
-            grid = [["" if v is None else str(v) for v in row]
-                    for row in sheet.iter_rows(values_only=True)]
-        except Exception as exc:
-            raise ApiError("VALIDATION_FAILED", "not a readable xlsx file") from exc
-    else:
-        try:
-            text = body.decode("utf-8-sig")
-        except UnicodeDecodeError as exc:
-            raise ApiError("VALIDATION_FAILED", "CSV must be UTF-8") from exc
-        try:  # Excel exports use ";" in many locales
-            dialect = csv.Sniffer().sniff(text.split("\n", 1)[0], delimiters=",;\t")
-        except csv.Error:
-            dialect = csv.excel
-        grid = list(csv.reader(io.StringIO(text), dialect))
-    grid = [row for row in grid if any(cell.strip() for cell in row)]
-    if not grid:
-        return []
-    header = [h.strip() for h in grid[0]]
-    return [dict(zip(header, (c.strip() for c in row))) for row in grid[1:]]
-
-
 def _sheet_examples(rows: list[dict[str, str]], q: SheetIn) -> list[dict]:
     columns = list(rows[0]) if rows else []
     missing = [c for c in (q.text_column, q.label_column) if c not in columns]
@@ -166,8 +135,7 @@ def _sheet_examples(rows: list[dict[str, str]], q: SheetIn) -> list[dict]:
     out = []
     for row in rows:
         text = row.get(q.text_column, "")
-        # Without an ID column the text is the identity: re-importing the same sheet updates, not adds.
-        external_id = row.get(q.id_column) or "sha256:" + hashlib.sha256(text.encode()).hexdigest()[:16]
+        external_id = sheets.external_id(row, q.id_column, text)
         out.append({"task": q.task, "text": text or None, "label": row.get(q.label_column, ""),
                     "external_id": external_id, "label_mode": q.label_mode})
     return out
@@ -250,7 +218,11 @@ def create_app(decider: Decider, api_key: str, max_body_bytes: int | None = None
                 q = SheetIn.model_validate(dict(request.query_params))
             except ValidationError as exc:
                 raise ApiError("VALIDATION_FAILED", "CSV and xlsx imports need ?task=") from exc
-            items = _sheet_examples(_sheet_rows(ctype, body), q)
+            try:
+                rows = sheets.read(body, xlsx=ctype == XLSX)
+            except sheets.SheetError as exc:
+                raise ApiError("VALIDATION_FAILED", str(exc)) from exc
+            items = _sheet_examples(rows, q)
         else:
             raise ApiError("VALIDATION_FAILED",
                            f"Content-Type must be application/x-ndjson, text/csv or {XLSX}")
