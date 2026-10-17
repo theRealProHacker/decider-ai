@@ -2,8 +2,6 @@
 
 decider-ai is a self-hosted container that classifies short texts into the labels you define, starts from a zero-shot model, and learns from the decisions you confirm. Licensed under Apache-2.0.
 
-Status: under construction.
-
 ## Results
 
 Fine-tuned on 250 labels, decider-ai costs about €0.003–0.004 per 1,000 decisions on a CPU and answers faster than Gemini 3.5 Flash-Lite (p95 345–626 ms vs 695–805 ms). It is less accurate: zero-shot Gemini scores 10–15 macro-F1 points higher.
