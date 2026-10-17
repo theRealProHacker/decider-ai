@@ -1,0 +1,398 @@
+{
+  "schema_version": 1,
+  "run": {
+    "date": "2026-10-11",
+    "git_sha": "d2d6981f7c582c3b1c5537c417a6c02fa9d70619",
+    "machine": "Intel Core Ultra 7 258V, 8 threads, 30 GB RAM, Linux 6.17 (laptop)",
+    "backend": {
+      "name": "laya",
+      "laya_revision": "1720e3e3357cfe1e281542e223f8273b0890ca34",
+      "sdk_version": "0.4.0"
+    },
+    "cpu_price_per_hour": 0.0256,
+    "price_date": "2026-10-08",
+    "currency": "EUR",
+    "fx": {
+      "rate": 0.86,
+      "date": "2026-10-08"
+    },
+    "budgets": [
+      1000
+    ],
+    "seeds": [
+      0
+    ],
+    "resamples": 2000,
+    "amortise_decisions": 30000,
+    "ci": "nominal 95% paired bootstrap (2000 resamples, seeds averaged inside each resample), unadjusted; one look per dataset"
+  },
+  "datasets": [
+    {
+      "name": "massive_de_scenario",
+      "task": "massive_de_scenario",
+      "labels": 18,
+      "n_test": 2974,
+      "records_sha256": "d617edbb51a609d846581c4c83561daab9f58a10b35f4c14182be00d611b22bd",
+      "source": {
+        "dataset": "MASSIVE 1.1, locale de-DE, scenario level",
+        "authors": "FitzGerald et al., Amazon (2022); derived from SLURP",
+        "licence": "CC BY 4.0",
+        "link": "https://github.com/alexa/massive",
+        "pin": "amazon-massive-dataset-1.1.tar.gz (alexa/massive @ f966f21846043aabef9b0f974fa7970027f43738)",
+        "sha256": {
+          "amazon-massive-dataset-1.1.tar.gz": "4cba5faa11c71437928e17cb1b9b3d8b8e727e7ea363a3a9a8045e19c0491577",
+          "1.1/data/de-DE.jsonl": "5e09cc550b38d37faf002e0ff42103acd330906e23032689e8f071e1cf3ff621"
+        }
+      },
+      "systems": [
+        {
+          "name": "finetune",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 1000,
+              "p95_latency_ms": 851.232,
+              "inference_cost_per_1k": 0.0032994008727948347,
+              "retrain_cost_per_1k": 0.00166051329687206,
+              "training_cpu_hours": 1.9459140197719453,
+              "cost_per_1k": 0.004959914169666894,
+              "macro_f1": 0.7891106341635168,
+              "macro_f1_by_seed": [
+                0.7891106341635168
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": []
+        },
+        {
+          "name": "zero_shot",
+          "kind": "local",
+          "zero_shot": true,
+          "rows": [
+            {
+              "budget": 0,
+              "p95_latency_ms": 477.052,
+              "inference_cost_per_1k": 0.0027135162755661103,
+              "retrain_cost_per_1k": 0.0,
+              "training_cpu_hours": 0.0,
+              "cost_per_1k": 0.0027135162755661103,
+              "macro_f1": 0.5663266838842318,
+              "macro_f1_by_seed": [
+                0.5663266838842318
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 1000,
+              "delta": -0.222783950279285,
+              "ci_low": -0.24135282680108128,
+              "ci_high": -0.20428525694490496,
+              "n": 2974
+            }
+          ]
+        },
+        {
+          "name": "gemini-3.5-flash-lite",
+          "kind": "api",
+          "zero_shot": true,
+          "rows": [
+            {
+              "budget": 0,
+              "p95_latency_ms": 804.5,
+              "cost_per_1k": 0.08077904236718225,
+              "cost_per_1k_low": 0.05654532965702757,
+              "cost_per_1k_high": 0.10501275507733693,
+              "mean_input_tokens": 304.2817753866846,
+              "mean_output_tokens": 1.0578345662407531,
+              "training_cpu_hours": 0.0,
+              "macro_f1": 0.8723545095097133,
+              "macro_f1_by_seed": [
+                0.8723545095097133
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 1000,
+              "delta": 0.08324387534619648,
+              "ci_low": 0.0677628880349066,
+              "ci_high": 0.1002457887820738,
+              "n": 2974
+            }
+          ],
+          "api": {
+            "model": "gemini-3.5-flash-lite",
+            "settings": {
+              "temperature": 0.0,
+              "thinking_level": "MINIMAL",
+              "output": "enum restricted to the task's labels",
+              "shots": 0
+            },
+            "price_date": "2026-10-08",
+            "run_date": "2026-10-08",
+            "prompt_template_sha256": "4887d2d570a0f7a770f27d12c1e05410e56e041a92113864c4a0be1896058c66",
+            "prices": {
+              "price_input_per_million_usd": 0.3,
+              "price_output_per_million_usd": 2.5
+            }
+          }
+        },
+        {
+          "name": "majority",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 1000,
+              "p95_latency_ms": 0.0,
+              "inference_cost_per_1k": 1.6149443323619519e-09,
+              "retrain_cost_per_1k": 4.740740740740741e-11,
+              "training_cpu_hours": 5.555555555555556e-08,
+              "cost_per_1k": 1.6623517397693593e-09,
+              "macro_f1": 0.013230647709320694,
+              "macro_f1_by_seed": [
+                0.013230647709320694
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 1000,
+              "delta": -0.7758799864541961,
+              "ci_low": -0.7902732906284983,
+              "ci_high": -0.7592144428389698,
+              "n": 2974
+            }
+          ]
+        },
+        {
+          "name": "tfidf_lr",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 1000,
+              "p95_latency_ms": 1.408,
+              "inference_cost_per_1k": 8.17674817305537e-06,
+              "retrain_cost_per_1k": 5.809303703703703e-07,
+              "training_cpu_hours": 0.0006807777777777778,
+              "cost_per_1k": 8.757678543425741e-06,
+              "macro_f1": 0.7916060694784344,
+              "macro_f1_by_seed": [
+                0.7916060694784344
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 1000,
+              "delta": 0.0024954353149175823,
+              "ci_low": -0.01349104031179793,
+              "ci_high": 0.019559920101070438,
+              "n": 2974
+            }
+          ]
+        },
+        {
+          "name": "verdict-1.4",
+          "kind": "local",
+          "zero_shot": true,
+          "rows": [
+            {
+              "budget": 0,
+              "p95_latency_ms": 844.285,
+              "inference_cost_per_1k": 0.00502432424801614,
+              "retrain_cost_per_1k": 0.0,
+              "training_cpu_hours": 0.0,
+              "cost_per_1k": 0.00502432424801614,
+              "macro_f1": 0.3002192233698684,
+              "macro_f1_by_seed": [
+                0.3002192233698684
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 1000,
+              "delta": -0.4888914107936484,
+              "ci_low": -0.5105527992584147,
+              "ci_high": -0.4681120280137345,
+              "n": 2974
+            }
+          ]
+        }
+      ],
+      "headline": null
+    },
+    {
+      "name": "massive_en_scenario",
+      "task": "massive_en_scenario",
+      "labels": 18,
+      "n_test": 2974,
+      "records_sha256": "4067315d1ac17f4b85877d76157e3616b345608b07533ff4ce9d945062903aa1",
+      "source": {
+        "dataset": "massive_en_scenario"
+      },
+      "systems": [
+        {
+          "name": "finetune",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 1000,
+              "p95_latency_ms": 350.936,
+              "inference_cost_per_1k": 0.002052865126231492,
+              "retrain_cost_per_1k": 0.001114526053526994,
+              "training_cpu_hours": 1.3060852189769463,
+              "cost_per_1k": 0.003167391179758486,
+              "macro_f1": 0.8090146137903244,
+              "macro_f1_by_seed": [
+                0.8090146137903244
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": []
+        },
+        {
+          "name": "zero_shot",
+          "kind": "local",
+          "zero_shot": true,
+          "rows": [
+            {
+              "budget": 0,
+              "p95_latency_ms": 372.597,
+              "inference_cost_per_1k": 0.0021676823867923067,
+              "retrain_cost_per_1k": 0.0,
+              "training_cpu_hours": 0.0,
+              "cost_per_1k": 0.0021676823867923067,
+              "macro_f1": 0.6354894593309486,
+              "macro_f1_by_seed": [
+                0.6354894593309486
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 1000,
+              "delta": -0.17352515445937577,
+              "ci_low": -0.1917388519984612,
+              "ci_high": -0.15592987147731185,
+              "n": 2974
+            }
+          ]
+        },
+        {
+          "name": "majority",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 1000,
+              "p95_latency_ms": 0.0,
+              "inference_cost_per_1k": 2.4769334229993275e-09,
+              "retrain_cost_per_1k": 7.111111111111112e-11,
+              "training_cpu_hours": 8.333333333333333e-08,
+              "cost_per_1k": 2.5480445341104387e-09,
+              "macro_f1": 0.013230647709320694,
+              "macro_f1_by_seed": [
+                0.013230647709320694
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 1000,
+              "delta": -0.7957839660810037,
+              "ci_low": -0.8108806750047519,
+              "ci_high": -0.7795564377912279,
+              "n": 2974
+            }
+          ]
+        },
+        {
+          "name": "tfidf_lr",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 1000,
+              "p95_latency_ms": 1.642,
+              "inference_cost_per_1k": 8.429984786669656e-06,
+              "retrain_cost_per_1k": 4.530962962962962e-07,
+              "training_cpu_hours": 0.0005309722222222222,
+              "cost_per_1k": 8.883081082965952e-06,
+              "macro_f1": 0.8118183322912585,
+              "macro_f1_by_seed": [
+                0.8118183322912585
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 1000,
+              "delta": 0.0028037185009341936,
+              "ci_low": -0.01429015300943337,
+              "ci_high": 0.019723599036453376,
+              "n": 2974
+            }
+          ]
+        },
+        {
+          "name": "verdict-1.4",
+          "kind": "local",
+          "zero_shot": true,
+          "rows": [
+            {
+              "budget": 0,
+              "p95_latency_ms": 1725.103,
+              "inference_cost_per_1k": 0.007105618726802661,
+              "retrain_cost_per_1k": 0.0,
+              "training_cpu_hours": 0.0,
+              "cost_per_1k": 0.007105618726802661,
+              "macro_f1": 0.6065205726018746,
+              "macro_f1_by_seed": [
+                0.6065205726018746
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 1000,
+              "delta": -0.2024940411884497,
+              "ci_low": -0.22093258869383425,
+              "ci_high": -0.18563766421300787,
+              "n": 2974
+            }
+          ]
+        }
+      ],
+      "headline": null
+    }
+  ],
+  "gate": {
+    "budget": 250,
+    "outcome": null,
+    "reason": "budget 250 not run",
+    "per_dataset": []
+  },
+  "zero_shot_rule": {
+    "baseline": "tfidf_lr",
+    "budget": 50,
+    "outcome": null,
+    "per_dataset": []
+  }
+}

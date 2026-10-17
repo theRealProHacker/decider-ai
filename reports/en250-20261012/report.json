@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "run": {
+    "date": "2026-10-12",
+    "git_sha": "d2d6981f7c582c3b1c5537c417a6c02fa9d70619",
+    "machine": "Intel Core Ultra 7 258V, 8 threads, 30 GB RAM, Linux 6.17 (laptop)",
+    "backend": {
+      "name": "laya",
+      "laya_revision": "1720e3e3357cfe1e281542e223f8273b0890ca34",
+      "sdk_version": "0.4.0"
+    },
+    "cpu_price_per_hour": 0.0256,
+    "price_date": "2026-10-08",
+    "currency": "EUR",
+    "fx": null,
+    "budgets": [
+      250
+    ],
+    "seeds": [
+      0
+    ],
+    "resamples": 2000,
+    "amortise_decisions": 30000,
+    "ci": "nominal 95% paired bootstrap (2000 resamples, seeds averaged inside each resample), unadjusted; one look per dataset"
+  },
+  "datasets": [
+    {
+      "name": "massive_en_scenario",
+      "task": "massive_en_scenario",
+      "labels": 18,
+      "n_test": 2974,
+      "records_sha256": "4067315d1ac17f4b85877d76157e3616b345608b07533ff4ce9d945062903aa1",
+      "source": {
+        "dataset": "massive_en_scenario"
+      },
+      "systems": [
+        {
+          "name": "finetune",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 250,
+              "p95_latency_ms": 424.606,
+              "inference_cost_per_1k": 0.0020031768901227404,
+              "retrain_cost_per_1k": 0.0008322957759736866,
+              "training_cpu_hours": 0.9753466124691639,
+              "cost_per_1k": 0.002835472666096427,
+              "macro_f1": 0.7899842132621337,
+              "macro_f1_by_seed": [
+                0.7899842132621337
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": []
+        },
+        {
+          "name": "zero_shot",
+          "kind": "local",
+          "zero_shot": true,
+          "rows": [
+            {
+              "budget": 0,
+              "p95_latency_ms": 310.425,
+              "inference_cost_per_1k": 0.0016839511154289376,
+              "retrain_cost_per_1k": 0.0,
+              "training_cpu_hours": 0.0,
+              "cost_per_1k": 0.0016839511154289376,
+              "macro_f1": 0.6354894593309486,
+              "macro_f1_by_seed": [
+                0.6354894593309486
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": -0.15449475393118517,
+              "ci_low": -0.17223435135164789,
+              "ci_high": -0.13713381833933858,
+              "n": 2974
+            }
+          ]
+        },
+        {
+          "name": "majority",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 250,
+              "p95_latency_ms": 0.001,
+              "inference_cost_per_1k": 3.154808338937458e-09,
+              "retrain_cost_per_1k": 2.3703703703703706e-11,
+              "training_cpu_hours": 2.777777777777778e-08,
+              "cost_per_1k": 3.1785120426411616e-09,
+              "macro_f1": 0.013230647709320694,
+              "macro_f1_by_seed": [
+                0.013230647709320694
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": -0.776753565552813,
+              "ci_low": -0.7917606245293107,
+              "ci_high": -0.7605713852988777,
+              "n": 2974
+            }
+          ]
+        },
+        {
+          "name": "tfidf_lr",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 250,
+              "p95_latency_ms": 1.16,
+              "inference_cost_per_1k": 7.671646237764327e-06,
+              "retrain_cost_per_1k": 3.007762962962963e-07,
+              "training_cpu_hours": 0.0003524722222222222,
+              "cost_per_1k": 7.972422534060623e-06,
+              "macro_f1": 0.6654491796159782,
+              "macro_f1_by_seed": [
+                0.6654491796159782
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": -0.12453503364615559,
+              "ci_low": -0.14369873926443033,
+              "ci_high": -0.10569340328444365,
+              "n": 2974
+            }
+          ]
+        },
+        {
+          "name": "verdict-1.4",
+          "kind": "local",
+          "zero_shot": true,
+          "rows": [
+            {
+              "budget": 0,
+              "p95_latency_ms": 1725.103,
+              "inference_cost_per_1k": 0.007105618726802661,
+              "retrain_cost_per_1k": 0.0,
+              "training_cpu_hours": 0.0,
+              "cost_per_1k": 0.007105618726802661,
+              "macro_f1": 0.6065205726018746,
+              "macro_f1_by_seed": [
+                0.6065205726018746
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": -0.1834636406602591,
+              "ci_low": -0.2025724748319393,
+              "ci_high": -0.16500246542908859,
+              "n": 2974
+            }
+          ]
+        },
+        {
+          "name": "xlmr_base",
+          "kind": "local",
+          "zero_shot": false,
+          "rows": [
+            {
+              "budget": 250,
+              "p95_latency_ms": 36.864,
+              "inference_cost_per_1k": 0.00016549949518045282,
+              "retrain_cost_per_1k": 9.565487407407407e-05,
+              "training_cpu_hours": 0.11209555555555555,
+              "cost_per_1k": 0.0002611543692545269,
+              "macro_f1": 0.4607672080791844,
+              "macro_f1_by_seed": [
+                0.4607672080791844
+              ],
+              "invalid": 0
+            }
+          ],
+          "vs_finetune": [
+            {
+              "finetune_budget": 250,
+              "delta": -0.32921700518294933,
+              "ci_low": -0.34894327885250237,
+              "ci_high": -0.3084895002161775,
+              "n": 2974
+            }
+          ]
+        }
+      ],
+      "headline": null
+    }
+  ],
+  "gate": {
+    "budget": 250,
+    "outcome": null,
+    "reason": "no API system for massive_en_scenario",
+    "per_dataset": []
+  },
+  "zero_shot_rule": {
+    "baseline": "tfidf_lr",
+    "budget": 50,
+    "outcome": null,
+    "per_dataset": []
+  }
+}
