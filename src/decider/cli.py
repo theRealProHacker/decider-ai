@@ -289,7 +289,15 @@ VERDICTS = {
 
 def cmd_activate(args):
     task = pick_task(args.task)
-    version = args.version or call("GET", f"/v1/tasks/{task}/models")["models"][-1]["version"]
+    version = args.version
+    if not version:  # "the newest" is only the one just trained once training has finished
+        job = last_job()
+        if job and job["task"] == task and job["state"] in ("queued", "running"):
+            raise Fail("training is still running; run `decider-ai wait` until it prints the result")
+        models = call("GET", f"/v1/tasks/{task}/models")["models"]
+        if not models:
+            raise Fail(f"no trained model for {task} yet; run `decider-ai train`")
+        version = models[-1]["version"]
     out = call("POST", f"/v1/tasks/{task}/models/{version}/activate")
     print(f"{task} now serves {version}." + (f" Note: {out['warning']}" if out.get("warning") else ""))
 

@@ -28,13 +28,13 @@ Things to know:
 
 ## Run
 
-Images are published to GHCR under pinned version tags. Always use a version tag such as `v0.3.0`; never `latest`. Replace `OWNER` below with the GitHub owner of this repository.
+Images are published to GHCR under pinned version tags. Always use a version tag such as `v0.3.1`; never `latest`. Replace `OWNER` below with the GitHub owner of this repository.
 
 1. Put a `tasks.yaml` (see below) into a volume:
 
    ```sh
    docker volume create decider-data
-   docker run --rm -i -v decider-data:/data --entrypoint sh ghcr.io/OWNER/decider-ai:v0.3.0 \
+   docker run --rm -i -v decider-data:/data --entrypoint sh ghcr.io/OWNER/decider-ai:v0.3.1 \
      -c 'cat > /data/tasks.yaml' < tasks.yaml
    ```
 
@@ -42,7 +42,7 @@ Images are published to GHCR under pinned version tags. Always use a version tag
 
    ```sh
    docker run -d --name decider-ai -p 127.0.0.1:8080:8080 -v decider-data:/data \
-     ghcr.io/OWNER/decider-ai:v0.3.0
+     ghcr.io/OWNER/decider-ai:v0.3.1
    docker logs decider-ai   # the generated API key is printed once, on first start
    ```
 
@@ -57,7 +57,7 @@ The volume holds everything: `tasks.yaml`, `api_key`, `decider.db`, `models/` an
 Give Claude Code (or any agent that can run Docker) your spreadsheet and this line:
 
 ```
-Set up decider-ai with my data: run `docker run --rm ghcr.io/therealprohacker/decider-ai:v0.3.0 guide` and follow it.
+Set up decider-ai with my data: run `docker run --rm ghcr.io/therealprohacker/decider-ai:v0.3.1 guide` and follow it.
 ```
 
 It creates the task from your columns, starts the container, tests the untrained model on your rows, shows what it gets right and wrong, and trains and activates only when you say so. At the end you can type:
@@ -102,7 +102,7 @@ The image does not contain the model. On first start it downloads `convaiinnovat
 For a host without internet access, fill the volume on a machine that has it, then move the volume over:
 
 ```sh
-docker run --rm -v decider-data:/data --entrypoint hf ghcr.io/OWNER/decider-ai:v0.3.0 \
+docker run --rm -v decider-data:/data --entrypoint hf ghcr.io/OWNER/decider-ai:v0.3.1 \
   download convaiinnovations/laya-multilingual \
   --revision 1720e3e3357cfe1e281542e223f8273b0890ca34 --cache-dir /data/hf-cache
 ```

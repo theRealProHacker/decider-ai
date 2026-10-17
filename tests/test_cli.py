@@ -139,6 +139,19 @@ def test_errors_are_one_line(service, monkeypatch, capsys):
     assert "run `decider-ai train`" in capsys.readouterr().err
 
 
+def test_activate_waits_for_training(service, monkeypatch, capsys):
+    with pytest.raises(SystemExit):
+        run(["activate"])
+    assert "no trained model for routed_to yet" in capsys.readouterr().err
+    run(["import"], sheet(), monkeypatch)
+    run(["train"])
+    capsys.readouterr()
+    monkeypatch.setattr(cli, "last_job", lambda: {"task": "routed_to", "state": "running"})
+    with pytest.raises(SystemExit):
+        run(["activate"])
+    assert "training is still running" in capsys.readouterr().err
+
+
 def test_guide_names_the_image(monkeypatch, capsys):
     monkeypatch.setenv("DECIDER_IMAGE", "ghcr.io/x/decider-ai:v9")
     cli.main(["guide"])

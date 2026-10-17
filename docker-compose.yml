@@ -3,7 +3,7 @@
 # http://decider-ai:8080. Replace OWNER and use a pinned release tag, never `latest`.
 services:
   decider-ai:
-    image: ${DECIDER_IMAGE:-ghcr.io/OWNER/decider-ai:v0.3.0}
+    image: ${DECIDER_IMAGE:-ghcr.io/OWNER/decider-ai:v0.3.1}
     ports:
       - "127.0.0.1:8080:8080"   # host loopback only
     volumes:
